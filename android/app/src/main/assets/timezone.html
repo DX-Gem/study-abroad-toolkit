@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时区转换器 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f97316">
+</head>
+<body>
+    <div class="header">
+        <h1>🕐 留学工具箱</h1>
+    </div>
+
+    <main class="tool-page">
+        <a href="index.html" class="back-link">返回首页</a>
+        <h1>🕐 时区转换器</h1>
+
+        <!-- Triple clock display -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;">
+            <div class="result-card" style="text-align:center;padding:12px 8px;">
+                <div class="city-name">🇨🇳 中国</div>
+                <div class="time-display">
+                    <div class="local-time" id="time1" style="font-size:1.5rem;">--:--</div>
+                    <div class="local-date" id="date1">----年--月--日</div>
+                </div>
+            </div>
+            <div class="result-card" style="text-align:center;padding:12px 8px;">
+                <div class="city-name" id="city2Name">🇰🇿 阿拉木图</div>
+                <div class="time-display">
+                    <div class="local-time" id="time2" style="font-size:1.5rem;">--:--</div>
+                    <div class="local-date" id="date2">----年--月--日</div>
+                </div>
+            </div>
+            <div class="result-card" style="text-align:center;padding:12px 8px;">
+                <div class="city-name" id="city3Name">🏠 自选</div>
+                <div class="time-display">
+                    <div class="local-time" id="time3" style="font-size:1.5rem;">--:--</div>
+                    <div class="local-date" id="date3">----年--月--日</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Third clock selector -->
+        <div class="form-group" style="margin-bottom:12px;">
+            <label for="thirdCity">第三个时钟</label>
+            <select id="thirdCity">
+                <option value="Asia/Shanghai">🇨🇳 北京 (给家长看)</option>
+                <option value="Europe/Moscow">🇷🇺 莫斯科</option>
+                <option value="Europe/Warsaw">🇵🇱 华沙</option>
+                <option value="Europe/Istanbul">🇹🇷 伊斯坦布尔</option>
+                <option value="Europe/London">🇬🇧 伦敦</option>
+                <option value="America/New_York">🇺🇸 纽约</option>
+            </select>
+        </div>
+
+        <!-- Target city selector -->
+        <div class="form-group">
+            <label for="targetCity">目标城市</label>
+            <select id="targetCity">
+                <option value="Asia/Almaty">🇰🇿 阿拉木图 (UTC+5)</option>
+                <option value="Asia/Aqtau">🇰🇿 阿克套 (UTC+5)</option>
+                <option value="Asia/Aqtobe">🇰🇿 阿克托别 (UTC+5)</option>
+                <option value="Asia/Tashkent">🇺🇿 塔什干 (UTC+5)</option>
+                <option value="Asia/Bishkek">🇰🇬 比什凯克 (UTC+6)</option>
+                <option value="Asia/Dushanbe">🇹🇯 杜尚别 (UTC+5)</option>
+                <option value="Europe/Moscow">🇷🇺 莫斯科 (UTC+3)</option>
+                <option value="Europe/Minsk">🇧🇾 明斯克 (UTC+3)</option>
+                <option value="Europe/Warsaw">🇵🇱 华沙 (UTC+1/UTC+2)</option>
+                <option value="Europe/Istanbul">🇹🇷 伊斯坦布尔 (UTC+3)</option>
+            </select>
+        </div>
+
+        <div class="subtitle" id="timeDiff" style="margin:-8px 0 16px;"></div>
+
+        <!-- Class schedule planner -->
+        <div class="result-card">
+            <h3>📅 课程时间规划</h3>
+            <p class="subtitle" style="margin-bottom:12px;">输入在当地的课程时间，换算成北京时间</p>
+            <div style="display:flex;gap:12px;align-items:end;margin-bottom:12px;">
+                <div class="form-group" style="flex:1;margin-bottom:0;">
+                    <label for="classHour">课时（当地时间）</label>
+                    <input type="number" id="classHour" value="9" min="0" max="23">
+                </div>
+                <div class="form-group" style="flex:1;margin-bottom:0;">
+                    <label for="classMinute">分钟</label>
+                    <input type="number" id="classMinute" value="0" min="0" max="59">
+                </div>
+            </div>
+            <div id="classTimeResult" class="subtitle" style="text-align:center;padding:8px;"></div>
+        </div>
+
+        <!-- Quick reference table -->
+        <div class="result-card" style="margin-top:16px;">
+            <h3>🌍 常用时区速查</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:0.8125rem;" id="quickRef"></div>
+        </div>
+    </main>
+
+    <div class="footer">
+        <p>时钟每秒更新 · 基于浏览器本地时间计算</p>
+    </div>
+
+    <script>
+        const CITY_NAMES = {
+            'Asia/Almaty': '🇰🇿 阿拉木图', 'Asia/Aqtau': '🇰🇿 阿克套', 'Asia/Aqtobe': '🇰🇿 阿克托别',
+            'Asia/Tashkent': '🇺🇿 塔什干', 'Asia/Bishkek': '🇰🇬 比什凯克', 'Asia/Dushanbe': '🇹🇯 杜尚别',
+            'Europe/Moscow': '🇷🇺 莫斯科', 'Europe/Minsk': '🇧🇾 明斯克', 'Europe/Warsaw': '🇵🇱 华沙',
+            'Europe/Istanbul': '🇹🇷 伊斯坦布尔',
+        };
+
+        const QUICK_REF = [
+            { name: '🇨🇳 北京', tz: 'Asia/Shanghai' },
+            { name: '🇰🇿 阿拉木图', tz: 'Asia/Almaty' },
+            { name: '🇰🇿 阿斯塔纳', tz: 'Asia/Almaty' },
+            { name: '🇺🇿 塔什干', tz: 'Asia/Tashkent' },
+            { name: '🇰🇬 比什凯克', tz: 'Asia/Bishkek' },
+            { name: '🇹🇯 杜尚别', tz: 'Asia/Dushanbe' },
+            { name: '🇷🇺 莫斯科', tz: 'Europe/Moscow' },
+            { name: '🇧🇾 明斯克', tz: 'Europe/Minsk' },
+            { name: '🇵🇱 华沙', tz: 'Europe/Warsaw' },
+            { name: '🇹🇷 伊斯坦布尔', tz: 'Europe/Istanbul' },
+            { name: '🇬🇧 伦敦', tz: 'Europe/London' },
+            { name: '🇺🇸 纽约', tz: 'America/New_York' },
+        ];
+
+        function getTimeInTimezone(tz) {
+            const now = new Date();
+            const opts = { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false };
+            const dateOpts = { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
+            return {
+                time: new Intl.DateTimeFormat('zh-CN', opts).format(now),
+                date: new Intl.DateTimeFormat('zh-CN', dateOpts).format(now)
+            };
+        }
+
+        function getUTCOffset(tz) {
+            const now = new Date();
+            const fmt = (zone) => {
+                const s = new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: '2-digit', minute: '2-digit', hour12: false, hourCycle: 'h23' }).format(now);
+                const [h, m] = s.split(':').map(Number);
+                return h * 60 + m;
+            };
+            let diff = fmt(tz) - fmt('UTC');
+            if (diff > 720) diff -= 1440;
+            if (diff < -720) diff += 1440;
+            const sign = diff >= 0 ? '+' : '';
+            const hours = Math.floor(Math.abs(diff) / 60);
+            return `UTC${sign}${hours}`;
+        }
+
+        function getHourDiff(tz1, tz2) {
+            const now = new Date();
+            const fmt = (zone) => {
+                const s = new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: '2-digit', minute: '2-digit', hour12: false, hourCycle: 'h23' }).format(now);
+                const [h, m] = s.split(':').map(Number);
+                return h * 60 + m;
+            };
+            let diff = fmt(tz2) - fmt(tz1);
+            if (diff > 720) diff -= 1440;
+            if (diff < -720) diff += 1440;
+            return diff / 60;
+        }
+
+        function updateClocks() {
+            const cn = getTimeInTimezone('Asia/Shanghai');
+            document.getElementById('time1').textContent = cn.time;
+            document.getElementById('date1').textContent = cn.date;
+            const targetTz = document.getElementById('targetCity').value;
+            const target = getTimeInTimezone(targetTz);
+            document.getElementById('time2').textContent = target.time;
+            document.getElementById('date2').textContent = target.date;
+            document.getElementById('city2Name').textContent = CITY_NAMES[targetTz] || targetTz;
+            const thirdTz = document.getElementById('thirdCity').value;
+            const third = getTimeInTimezone(thirdTz);
+            document.getElementById('time3').textContent = third.time;
+            document.getElementById('date3').textContent = third.date;
+            const thirdName = document.getElementById('thirdCity').selectedOptions[0].text.split(' ')[0];
+            document.getElementById('city3Name').textContent = thirdName;
+            const diff = getHourDiff('Asia/Shanghai', targetTz);
+            const sign = diff >= 0 ? '早' : '晚';
+            document.getElementById('timeDiff').textContent = `时差：比北京时间${sign} ${Math.abs(diff)} 小时`;
+            updateQuickRef();
+            updateClassTime();
+        }
+
+        function updateClassTime() {
+            const targetTz = document.getElementById('targetCity').value;
+            const hour = parseInt(document.getElementById('classHour').value) || 9;
+            const minute = parseInt(document.getElementById('classMinute').value) || 0;
+            const diff = getHourDiff(targetTz, 'Asia/Shanghai');
+            let cnHour = hour + diff;
+            if (cnHour >= 24) cnHour -= 24;
+            if (cnHour < 0) cnHour += 24;
+            const cnTime = `${String(Math.floor(cnHour)).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            const localTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            const cityName = CITY_NAMES[targetTz] || '';
+            document.getElementById('classTimeResult').innerHTML = `
+                当地 ${localTime} → <strong>北京时间 ${cnTime}</strong><br>
+                <span class="subtitle">（在${cityName}上${localTime}的课，国内家人${cnTime}联系你）</span>`;
+        }
+
+        function updateQuickRef() {
+            document.getElementById('quickRef').innerHTML = QUICK_REF.map(city => {
+                const t = getTimeInTimezone(city.tz);
+                const offset = getUTCOffset(city.tz);
+                return `<div style="padding:4px 0;">
+                    <span>${city.name}</span>
+                    <span style="color:var(--text-muted);float:right;">${t.time}</span>
+                    <div style="font-size:0.6875rem;color:var(--text-muted);">${offset}</div>
+                </div>`;
+            }).join('');
+        }
+
+        document.getElementById('targetCity').addEventListener('change', updateClocks);
+        document.getElementById('thirdCity').addEventListener('change', updateClocks);
+        document.getElementById('classHour').addEventListener('input', updateClassTime);
+        document.getElementById('classMinute').addEventListener('input', updateClassTime);
+        updateClocks();
+        setInterval(updateClocks, 1000);
+    </script>
+    <script src="app.js"></script>
+    <nav class="tab-bar">
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🆘<span>短语</span></a>
+        <a href="ledger.html" class="tab-item">💰<span>记账</span></a>
+        <a href="timezone.html" class="tab-item active">🕐<span>时区</span></a>
+        <a href="countdown.html" class="tab-item">✅<span>待办</span></a>
+    </nav>
+</body>
+</html>

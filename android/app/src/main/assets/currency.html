@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汇率换算器 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f97316">
+</head>
+<body>
+    <div class="header">
+        <h1>🪙 留学工具箱</h1>
+    </div>
+
+    <main class="tool-page">
+        <a href="index.html" class="back-link">返回首页</a>
+        <h1>🪙 汇率换算器</h1>
+
+        <div class="form-group">
+            <label for="amount">金额</label>
+            <input type="number" id="amount" value="100" min="0" step="0.01" placeholder="输入金额">
+        </div>
+
+        <div class="form-group">
+            <label for="fromCurrency">从</label>
+            <select id="fromCurrency">
+                <option value="CNY" selected>🇨🇳 CNY — 人民币</option>
+                <option value="KZT">🇰🇿 KZT — 哈萨克斯坦坚戈</option>
+                <option value="RUB">🇷🇺 RUB — 俄罗斯卢布</option>
+                <option value="USD">🇺🇸 USD — 美元</option>
+                <option value="EUR">🇪🇺 EUR — 欧元</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="toCurrency">到</label>
+            <select id="toCurrency">
+                <option value="CNY">🇨🇳 CNY — 人民币</option>
+                <option value="KZT" selected>🇰🇿 KZT — 哈萨克斯坦坚戈</option>
+                <option value="RUB">🇷🇺 RUB — 俄罗斯卢布</option>
+                <option value="USD">🇺🇸 USD — 美元</option>
+                <option value="EUR">🇪🇺 EUR — 欧元</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary" onclick="convertCurrency()">换算</button>
+
+        <div class="result-card" id="resultCard" style="display:none;">
+            <h3>换算结果</h3>
+            <div class="value" id="resultValue"></div>
+            <div class="subtitle" id="resultRate"></div>
+        </div>
+
+        <div class="result-card" id="ratesCard" style="margin-top:24px;">
+            <h3>当前汇率 · 1 CNY =</h3>
+            <div class="currency-grid" id="ratesGrid">
+                <div class="empty-state">
+                    <div class="empty-icon">⏳</div>
+                    <p>加载中...</p>
+                </div>
+            </div>
+            <div class="subtitle" style="margin-top:8px;text-align:center;" id="ratesUpdated"></div>
+        </div>
+
+        <div class="result-card" style="margin-top:16px;">
+            <h3>💡 自定义汇率对比</h3>
+            <p class="subtitle" style="margin-bottom:8px;">
+                输入你实际换到的汇率（比如黑市汇率），看看和官方差多少
+            </p>
+            <div class="form-group">
+                <label for="customRate">1 CNY = ? KZT（自定义）</label>
+                <input type="number" id="customRate" value="68" min="0" step="0.01" placeholder="输入自定义汇率">
+            </div>
+            <div id="customResult" class="subtitle" style="margin-top:8px;"></div>
+        </div>
+    </main>
+
+    <div class="footer">
+        <p>数据来源：exchangerate-api.com · 每小时更新 · <strong>仅供参考</strong></p>
+    </div>
+
+    <script>
+        const EXCHANGE_API = 'https://api.exchangerate-api.com/v4/latest/USD';
+        let currentRates = {};
+        let usdRates = {};
+
+        // 页面加载时获取汇率（直连 exchangerate-api.com）
+        async function loadRates() {
+            // 先尝试读缓存
+            const cached = JSON.parse(localStorage.getItem('cached_rates_v2') || 'null');
+            if (cached && (Date.now() - cached.ts < 3600000)) {
+                usdRates = cached.usd;
+                currentRates = cached.cny;
+                renderRatesGrid({ rates: currentRates, updated: cached.date });
+            }
+
+            try {
+                const res = await fetch(EXCHANGE_API);
+                const data = await res.json();
+                usdRates = data.rates;
+                // 转为 CNY 基准
+                const cnyRate = data.rates['CNY'];
+                const cnyRates = {};
+                for (const [code, rate] of Object.entries(data.rates)) {
+                    cnyRates[code] = code === 'CNY' ? 1 : +(rate / cnyRate).toFixed(6);
+                }
+                currentRates = cnyRates;
+                // 存入缓存
+                localStorage.setItem('cached_rates_v2', JSON.stringify({
+                    usd: data.rates, cny: cnyRates, date: data.date, ts: Date.now()
+                }));
+                renderRatesGrid({ rates: cnyRates, updated: data.date });
+            } catch (err) {
+                if (!cached) {
+                    document.getElementById('ratesGrid').innerHTML =
+                        '<div class="empty-state"><div class="empty-icon">⚠️</div><p style="color:#ef4444;">汇率加载失败，请检查网络连接</p></div>';
+                }
+            }
+        }
+
+        function renderRatesGrid(data) {
+            const grid = document.getElementById('ratesGrid');
+            const currencyInfo = {
+                CNY: ['🇨🇳', '人民币'],
+                KZT: ['🇰🇿', '坚戈'],
+                RUB: ['🇷🇺', '卢布'],
+                USD: ['🇺🇸', '美元'],
+                EUR: ['🇪🇺', '欧元'],
+            };
+
+            grid.innerHTML = Object.entries(data.rates)
+                .filter(([code]) => code !== 'CNY')
+                .map(([code, rate]) => {
+                    const [flag] = currencyInfo[code] || ['🏳️'];
+                    return `
+                        <div class="currency-item">
+                            <div class="currency-code">${flag} ${code}</div>
+                            <div class="currency-rate">${rate.toFixed(4)}</div>
+                        </div>`;
+                })
+                .join('');
+
+            document.getElementById('ratesUpdated').textContent =
+                `更新于 ${data.updated || '最近'}`;
+        }
+
+        // 前端直接换算（无需后端）
+        function convertCurrency() {
+            const amount = parseFloat(document.getElementById('amount').value) || 100;
+            const from = document.getElementById('fromCurrency').value;
+            const to = document.getElementById('toCurrency').value;
+
+            if (!usdRates[from] || !usdRates[to]) {
+                document.getElementById('resultValue').textContent = '汇率数据未加载，请刷新页面';
+                return;
+            }
+
+            // from → USD → to
+            const amountInUsd = amount / usdRates[from];
+            const result = +(amountInUsd * usdRates[to]).toFixed(2);
+            const rate = +(usdRates[to] / usdRates[from]).toFixed(6);
+
+            const currencySymbols = {
+                CNY: '¥', KZT: '₸', RUB: '₽', USD: '$', EUR: '€'
+            };
+
+            document.getElementById('resultCard').style.display = 'block';
+            document.getElementById('resultValue').textContent =
+                `${currencySymbols[from] || ''}${amount} = ${currencySymbols[to] || ''}${result.toLocaleString()}`;
+            document.getElementById('resultRate').textContent =
+                `汇率：1 ${from} = ${rate} ${to}`;
+
+            // 自定义汇率计算
+            updateCustomCompare(from, to, amount, rate);
+        }
+
+        function updateCustomCompare(from, to, amount, officialRate) {
+            if (from !== 'CNY' || to !== 'KZT') {
+                document.getElementById('customResult').textContent =
+                    '自定义汇率对比目前只支持 CNY → KZT';
+                return;
+            }
+            const customRate = parseFloat(document.getElementById('customRate').value) || 0;
+            if (customRate <= 0) return;
+
+            const officialResult = amount * officialRate;
+            const customResult = amount * customRate;
+            const diff = customResult - officialResult;
+            const pct = ((diff / officialResult) * 100).toFixed(1);
+
+            const emoji = diff > 0 ? '🟢' : diff < 0 ? '🔴' : '⚪';
+            document.getElementById('customResult').innerHTML = `
+                官方：<strong>${officialResult.toFixed(2)} ₸</strong><br>
+                自定义：<strong>${customResult.toFixed(2)} ₸</strong><br>
+                差额：${emoji} ${diff > 0 ? '+' : ''}${diff.toFixed(2)} ₸ (${pct}%)
+            `;
+        }
+
+        // 自定义汇率输入时实时更新
+        document.getElementById('customRate').addEventListener('input', () => {
+            const amount = document.getElementById('amount').value || 100;
+            const from = document.getElementById('fromCurrency').value;
+            const to = document.getElementById('toCurrency').value;
+            const officialRate = currentRates[to] || 0;
+            updateCustomCompare(from, to, amount, officialRate);
+        });
+
+        // 页面加载
+        loadRates();
+    </script>
+    <script src="app.js"></script>
+    <nav class="tab-bar">
+        <a href="currency.html" class="tab-item active">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🆘<span>短语</span></a>
+        <a href="ledger.html" class="tab-item">💰<span>记账</span></a>
+        <a href="timezone.html" class="tab-item">🕐<span>时区</span></a>
+        <a href="countdown.html" class="tab-item">✅<span>待办</span></a>
+    </nav>
+</body>
+</html>

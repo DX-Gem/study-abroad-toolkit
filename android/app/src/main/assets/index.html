@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留学工具箱 — 中亚留学生的一站式实用工具</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f97316">
+</head>
+<body>
+    <div class="header">
+        <h1>🧰 留学工具箱</h1>
+        <p>中亚留学生的一站式实用工具</p>
+    </div>
+
+    <div class="hero">
+        <span class="hero-icon">🎓</span>
+        <h2>留学准备，一站搞定</h2>
+        <p>汇率、花费、时区、行李 — 四个工具，帮你轻松出发</p>
+    </div>
+
+    <div class="tools-grid">
+        <a href="currency.html" class="tool-card">
+            <div class="icon">🪙</div>
+            <div class="card-text">
+                <h2>汇率换算器</h2>
+                <p>人民币 ↔ 坚戈/卢布/美元/欧元 实时换算</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+        <a href="phrasebook.html" class="tool-card">
+            <div class="icon">🆘</div>
+            <div class="card-text">
+                <h2>应急短语手册</h2>
+                <p>俄语+哈语常用短句 · 翻译 · 离线朗读</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+        <a href="ledger.html" class="tool-card">
+            <div class="icon">💰</div>
+            <div class="card-text">
+                <h2>多币种记账本</h2>
+                <p>坚戈/卢布/人民币 多币种记账 · 自动换算</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+        <a href="timezone.html" class="tool-card">
+            <div class="icon">🕐</div>
+            <div class="card-text">
+                <h2>时区转换器</h2>
+                <p>跨国时间对照 + 三时钟 + 课程表规划</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+        <a href="countdown.html" class="tool-card">
+            <div class="icon">✅</div>
+            <div class="card-text">
+                <h2>出发倒计时</h2>
+                <p>留学时间线待办 · 从准备到抵达全流程</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+    </div>
+
+    <div class="footer">
+        <p>Study Abroad Toolkit · 让留学准备更简单</p>
+    </div>
+
+    <div class="install-banner" id="installBanner" style="display:none;">
+        📲 添加到手机桌面，像 App 一样使用
+        <button onclick="installPWA()">安装</button>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

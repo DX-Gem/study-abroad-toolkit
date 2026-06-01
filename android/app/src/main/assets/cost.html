@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生活成本计算器 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1>📊 留学工具箱</h1>
+    </div>
+
+    <main class="tool-page">
+        <a href="index.html" class="back-link">返回首页</a>
+        <h1>📊 生活成本计算器</h1>
+
+        <div class="form-group">
+            <label for="citySelect">留学城市</label>
+            <select id="citySelect"></select>
+        </div>
+
+        <div class="tabs" id="lifestyleTabs">
+            <button class="tab-btn active" data-lifestyle="budget">节俭</button>
+            <button class="tab-btn" data-lifestyle="normal">普通</button>
+            <button class="tab-btn" data-lifestyle="comfort">舒适</button>
+        </div>
+
+        <div class="subtitle" id="lifestyleDesc" style="margin-bottom:12px;"></div>
+
+        <div class="result-card" id="costBreakdown">
+            <h3>月度花费明细</h3>
+            <div id="costDetails"></div>
+            <div class="total-row">
+                <span class="total-label">合计</span>
+                <span class="total-amount" id="totalCost"></span>
+            </div>
+            <div class="subtitle" style="margin-top:4px;text-align:right;" id="rmbEquivalent"></div>
+        </div>
+
+        <div class="result-card" style="margin-top:16px;">
+            <h3>📈 城市对比</h3>
+            <div class="form-group">
+                <label for="compareCity">对比城市</label>
+                <select id="compareCity"></select>
+            </div>
+            <div id="comparisonResult" class="subtitle"></div>
+        </div>
+
+        <div class="footer" style="border-top:none;padding-top:16px;">
+            <p>⚠️ 数据为估算值，仅供参考。实际花费因个人消费习惯而异。</p>
+        </div>
+    </main>
+
+    <script>
+        const ROUGH_EXCHANGE = {
+            CNY: 1,
+            KZT: 0.016,
+            RUB: 0.078,
+            USD: 7.2,
+            EUR: 7.8,
+        };
+
+        const CATEGORY_LABELS = {
+            accommodation: '🏠 住宿',
+            food: '🍜 饮食',
+            transport: '🚌 交通',
+            communication: '📱 通讯',
+            entertainment: '🎮 娱乐',
+            study: '📚 学习用品',
+        };
+
+        let citiesData = [];
+        let currentLifestyle = 'budget';
+
+        async function init() {
+            try {
+                const res = await fetch('data/cities.json');
+                const data = await res.json();
+                citiesData = data.cities;
+                populateCitySelects();
+                updateDisplay();
+            } catch (err) {
+                document.getElementById('costDetails').innerHTML =
+                    '<p style="color:#ef4444;">数据加载失败</p>';
+            }
+        }
+
+        function populateCitySelects() {
+            const mainSelect = document.getElementById('citySelect');
+            const compareSelect = document.getElementById('compareCity');
+            const options = citiesData.map((c, i) =>
+                `<option value="${i}">${c.country} ${c.name}</option>`
+            ).join('');
+            mainSelect.innerHTML = options;
+            compareSelect.innerHTML = options;
+            mainSelect.selectedIndex = 0;
+            compareSelect.selectedIndex = citiesData.length > 1 ? citiesData.length - 4 : 0;
+        }
+
+        function updateDisplay() {
+            const city = citiesData[document.getElementById('citySelect').value];
+            const lifestyle = city.lifestyles[currentLifestyle];
+            document.getElementById('lifestyleDesc').textContent = lifestyle.description;
+            let detailsHTML = '';
+            let total = 0;
+            for (const [cat, label] of Object.entries(CATEGORY_LABELS)) {
+                const amount = lifestyle[cat];
+                total += amount;
+                detailsHTML += `<div class="cost-row">
+                    <span class="cost-label">${label}</span>
+                    <span class="cost-amount">${city.currencySymbol}${amount.toLocaleString()}</span>
+                </div>`;
+            }
+            document.getElementById('costDetails').innerHTML = detailsHTML;
+            document.getElementById('totalCost').textContent = `${city.currencySymbol}${total.toLocaleString()} / 月`;
+            const rmbAmount = total * (ROUGH_EXCHANGE[city.currency] || 1);
+            document.getElementById('rmbEquivalent').textContent = `≈ ¥${rmbAmount.toFixed(0)} / 月`;
+            updateComparison();
+        }
+
+        function updateComparison() {
+            const cityA = citiesData[document.getElementById('citySelect').value];
+            const cityB = citiesData[document.getElementById('compareCity').value];
+            const lsA = cityA.lifestyles[currentLifestyle];
+            const lsB = cityB.lifestyles[currentLifestyle];
+            const sum = (ls) => Object.values(ls).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0);
+            const rmbA = sum(lsA) * (ROUGH_EXCHANGE[cityA.currency] || 1);
+            const rmbB = sum(lsB) * (ROUGH_EXCHANGE[cityB.currency] || 1);
+            const diff = rmbA - rmbB;
+            const pct = rmbB > 0 ? ((diff / rmbB) * 100).toFixed(1) : '0';
+            let color, emoji, text;
+            if (diff > 0) { color = '#ef4444'; emoji = '📈'; text = `${cityA.name} 比 ${cityB.name} 贵`; }
+            else if (diff < 0) { color = '#10b981'; emoji = '📉'; text = `${cityA.name} 比 ${cityB.name} 便宜`; }
+            else { color = 'var(--text-muted)'; emoji = '➡️'; text = '花费相当'; }
+            document.getElementById('comparisonResult').innerHTML = `
+                <div style="margin-top:8px;">
+                    <p>${cityA.name}：<strong>¥${rmbA.toFixed(0)}</strong></p>
+                    <p>${cityB.name}：<strong>¥${rmbB.toFixed(0)}</strong></p>
+                    <p style="color:${color};margin-top:4px;">${emoji} ${text} ¥${Math.abs(diff).toFixed(0)} (${pct}%)</p>
+                </div>`;
+        }
+
+        document.getElementById('citySelect').addEventListener('change', updateDisplay);
+        document.getElementById('compareCity').addEventListener('change', updateComparison);
+        document.getElementById('lifestyleTabs').addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab-btn')) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentLifestyle = e.target.dataset.lifestyle;
+                updateDisplay();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

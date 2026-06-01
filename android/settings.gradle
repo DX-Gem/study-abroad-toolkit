@@ -1,0 +1,2 @@
+rootProject.name = "StudyAbroadToolkit"
+include ':app'

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行李清单生成器 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1>🎒 留学工具箱</h1>
+    </div>
+
+    <main class="tool-page">
+        <a href="index.html" class="back-link">返回首页</a>
+        <h1>🎒 行李清单生成器</h1>
+
+        <div class="form-group">
+            <label for="season">出发季节</label>
+            <select id="season">
+                <option value="summer">☀️ 夏季（6-8月）</option>
+                <option value="winter">❄️ 冬季（12-2月）</option>
+                <option value="any" selected>🍂 春秋 / 全年</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="duration">停留时间</label>
+            <select id="duration">
+                <option value="short">短期（1-3个月）</option>
+                <option value="long" selected>长期（1年以上）</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary" onclick="generateList()" style="margin-bottom:16px;">生成清单</button>
+
+        <div class="progress-bar" id="progressWrapper" style="display:none;">
+            <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
+        </div>
+        <div class="progress-text" id="progressText" style="display:none;"></div>
+
+        <div id="checklistContainer"></div>
+
+        <div id="actionButtons" style="display:none;margin-top:20px;">
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-secondary" onclick="resetChecklist()" style="flex:1;">全部取消勾选</button>
+                <button class="btn btn-secondary" onclick="exportList()" style="flex:1;">📋 复制清单文本</button>
+            </div>
+        </div>
+
+        <div class="result-card" style="margin-top:20px;" id="customSection">
+            <h3>✏️ 自定义物品</h3>
+            <div style="display:flex;gap:8px;">
+                <input type="text" id="customItemInput" placeholder="输入物品名称..." style="flex:1;">
+                <button class="btn btn-primary" onclick="addCustomItem()" style="width:auto;">添加</button>
+            </div>
+            <div id="customItems"></div>
+        </div>
+    </main>
+
+    <div class="footer">
+        <p>清单保存在浏览器中 · 不会丢失</p>
+    </div>
+
+    <script>
+        let packingData = null;
+        let currentItems = [];
+
+        async function loadData() {
+            const res = await fetch('data/packing.json');
+            packingData = await res.json();
+            generateList();
+        }
+
+        function generateList() {
+            if (!packingData) return;
+            const season = document.getElementById('season').value;
+            const duration = document.getElementById('duration').value;
+            const isShort = duration === 'short';
+            currentItems = [];
+            let html = '';
+            packingData.categories.forEach(cat => {
+                let items = [...cat.items];
+                if (isShort) {
+                    if (cat.id === 'food') items = [cat.items[0], cat.items[1]];
+                    if (cat.id === 'study') items = cat.items.slice(0, 4);
+                    if (cat.id === 'medicine') items = cat.items.slice(0, 6);
+                }
+                const itemEntries = items.map((item, idx) => {
+                    const itemId = `${cat.id}_${idx}`;
+                    currentItems.push({ id: itemId, category: cat.id, name: item, checked: loadCheckState(itemId) });
+                    return `<div class="checklist-item">
+                        <input type="checkbox" id="${itemId}" ${loadCheckState(itemId) ? 'checked' : ''}
+                               onchange="saveCheckState('${itemId}', this.checked); updateProgress();">
+                        <label for="${itemId}">${item}</label>
+                    </div>`;
+                }).join('');
+                html += `<div class="category-header">${cat.name}</div>${itemEntries}`;
+            });
+            if (season !== 'any' && packingData.seasonExtras[season]) {
+                html += `<div class="category-header">🌡️ 季节性额外</div>`;
+                packingData.seasonExtras[season].forEach(extra => {
+                    extra.items.forEach((item, idx) => {
+                        const itemId = `season_${extra.category}_${idx}`;
+                        currentItems.push({ id: itemId, category: 'seasonal', name: item, checked: loadCheckState(itemId) });
+                        html += `<div class="checklist-item">
+                            <input type="checkbox" id="${itemId}" ${loadCheckState(itemId) ? 'checked' : ''}
+                                   onchange="saveCheckState('${itemId}', this.checked); updateProgress();">
+                            <label for="${itemId}">${item}</label>
+                        </div>`;
+                    });
+                });
+            }
+            document.getElementById('checklistContainer').innerHTML = html;
+            document.getElementById('progressWrapper').style.display = 'block';
+            document.getElementById('progressText').style.display = 'block';
+            document.getElementById('actionButtons').style.display = 'block';
+            updateProgress();
+            renderCustomItems();
+        }
+
+        function saveCheckState(id, checked) {
+            const states = JSON.parse(localStorage.getItem('packing_checks') || '{}');
+            if (checked) states[id] = true;
+            else delete states[id];
+            localStorage.setItem('packing_checks', JSON.stringify(states));
+        }
+
+        function loadCheckState(id) {
+            const states = JSON.parse(localStorage.getItem('packing_checks') || '{}');
+            return !!states[id];
+        }
+
+        function resetChecklist() {
+            localStorage.removeItem('packing_checks');
+            generateList();
+        }
+
+        function updateProgress() {
+            const total = currentItems.length;
+            const checked = currentItems.filter(item => {
+                const el = document.getElementById(item.id);
+                return el && el.checked;
+            }).length;
+            const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressText').textContent = `已打包 ${checked}/${total} (${pct}%)`;
+        }
+
+        function exportList() {
+            const unchecked = currentItems.filter(item => {
+                const el = document.getElementById(item.id);
+                return el && !el.checked;
+            });
+            if (unchecked.length === 0) {
+                alert('🎉 全部物品已打包！');
+                return;
+            }
+            const text = '📋 留学行李 — 待打包清单\n' + '='.repeat(30) + '\n\n' +
+                unchecked.map(item => `☐ ${item.name}`).join('\n') +
+                '\n\n共 ' + unchecked.length + ' 项待打包';
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ 已复制到剪贴板！可以粘贴到备忘录或发给家长');
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                alert('✅ 已复制到剪贴板！');
+            });
+        }
+
+        function addCustomItem() {
+            const input = document.getElementById('customItemInput');
+            const name = input.value.trim();
+            if (!name) return;
+            const customs = JSON.parse(localStorage.getItem('custom_items') || '[]');
+            customs.push(name);
+            localStorage.setItem('custom_items', JSON.stringify(customs));
+            input.value = '';
+            renderCustomItems();
+            updateProgress();
+        }
+
+        function removeCustomItem(index) {
+            const customs = JSON.parse(localStorage.getItem('custom_items') || '[]');
+            customs.splice(index, 1);
+            localStorage.setItem('custom_items', JSON.stringify(customs));
+            renderCustomItems();
+        }
+
+        function renderCustomItems() {
+            const customs = JSON.parse(localStorage.getItem('custom_items') || '[]');
+            const container = document.getElementById('customItems');
+            container.innerHTML = customs.map((name, i) => {
+                const itemId = `custom_${i}`;
+                return `<div class="checklist-item">
+                    <input type="checkbox" id="${itemId}" ${loadCheckState(itemId) ? 'checked' : ''}
+                           onchange="saveCheckState('${itemId}', this.checked); updateProgress();">
+                    <label for="${itemId}">${name}</label>
+                    <span onclick="removeCustomItem(${i})" style="cursor:pointer;color:var(--text-muted);margin-left:8px;">✕</span>
+                </div>`;
+            }).join('');
+            currentItems = currentItems.filter(item => !item.id.startsWith('custom_'));
+            customs.forEach((name, i) => {
+                currentItems.push({ id: `custom_${i}`, category: 'custom', name, checked: loadCheckState(`custom_${i}`) });
+            });
+        }
+
+        loadData();
+    </script>
+</body>
+</html>

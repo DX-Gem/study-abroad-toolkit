@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应急短语手册 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f97316">
+    <style>
+        .translate-area {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+        .lang-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .lang-selector select {
+            padding: 6px 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: var(--bg);
+        }
+        .swap-btn {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .translate-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            margin-bottom: 8px;
+            resize: none;
+            font-family: inherit;
+        }
+        .translate-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(249,115,22,0.1);
+        }
+        .translate-result {
+            background: var(--primary-ghost);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+        .translate-result .ru-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .translate-result .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .action-btn {
+            padding: 6px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            background: #fff;
+            font-size: 0.8125rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .action-btn:active { background: var(--primary-light); border-color: var(--primary); }
+        .search-box {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            margin-bottom: 14px;
+            background: var(--card-bg);
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(249,115,22,0.1);
+        }
+        .phrase-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            position: relative;
+        }
+        .phrase-card .lang-tag {
+            display: inline-block;
+            font-size: 0.6875rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .phrase-card .foreign-text {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin: 6px 0 4px;
+            color: var(--text);
+        }
+        .phrase-card .pron {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .phrase-card .meaning {
+            font-size: 0.875rem;
+            color: var(--text);
+        }
+        .phrase-card .context {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-style: italic;
+        }
+        .phrase-card .fav-btn {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: opacity 0.15s;
+        }
+        .phrase-card .fav-btn.favorited { opacity: 1; }
+        .phrase-card .speak-btn {
+            position: absolute;
+            top: 10px;
+            right: 44px;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+        .emergency-fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(239,68,68,0.4);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .emergency-fab:active { transform: scale(0.9); }
+        .emergency-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .emergency-modal.show { display: flex; }
+        .emergency-modal .big-text {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .emergency-modal .close-btn {
+            padding: 12px 32px;
+            border-radius: 24px;
+            border: 2px solid #fff;
+            background: transparent;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>🆘 留学工具箱</h1></div>
+    <main class="tool-page" style="padding-bottom:80px;">
+        <h1>🆘 应急短语手册</h1>
+
+        <div class="translate-area">
+            <div class="lang-selector">
+                <select id="fromLang">
+                    <option value="zh">🇨🇳 中文</option>
+                    <option value="ru">🇷🇺 俄语</option>
+                    <option value="kk">🇰🇿 哈语</option>
+                </select>
+                <button class="swap-btn" onclick="swapLangs()" title="交换语言">⇄</button>
+                <select id="toLang">
+                    <option value="ru" selected>🇷🇺 俄语</option>
+                    <option value="kk">🇰🇿 哈语</option>
+                    <option value="zh">🇨🇳 中文</option>
+                </select>
+            </div>
+            <textarea id="translateInput" class="translate-input" rows="2" placeholder="输入想说的话..."></textarea>
+            <button class="btn btn-primary" onclick="doTranslate()" style="width:auto;padding:10px 24px;">🔄 翻译</button>
+            <div class="translate-result" id="translateResult">
+                <div class="ru-text" id="resultText"></div>
+                <div class="actions">
+                    <button class="action-btn" onclick="speakResult()">🔊 朗读</button>
+                    <button class="action-btn" onclick="copyResult()">📋 复制</button>
+                    <button class="action-btn" id="favResultBtn" onclick="favResult()">⭐ 收藏</button>
+                </div>
+            </div>
+        </div>
+
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 搜索短语（中文/俄语/拼音）..." oninput="renderPhrases()">
+
+        <div id="phraseList"></div>
+    </main>
+
+    <button class="emergency-fab" onclick="showEmergency()" title="紧急求助">🆘</button>
+    <div class="emergency-modal" id="emergencyModal" onclick="hideEmergency()">
+        <div class="big-text">🆘 ПОМОГИТЕ!</div>
+        <div class="big-text" style="font-size:1.5rem;margin-bottom:8px;">Көмектесіңіз!</div>
+        <div style="color:#fff;font-size:1rem;margin-bottom:8px;">帕马吉捷 / 科梅克捷西尼兹</div>
+        <div style="color:#fff;opacity:0.7;margin-bottom:24px;">救命！帮帮我！</div>
+        <button class="close-btn" onclick="event.stopPropagation();hideEmergency()">关闭</button>
+    </div>
+
+    <nav class="tab-bar">
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item active">🆘<span>短语</span></a>
+        <a href="ledger.html" class="tab-item">💰<span>记账</span></a>
+        <a href="timezone.html" class="tab-item">🕐<span>时区</span></a>
+        <a href="countdown.html" class="tab-item">✅<span>待办</span></a>
+    </nav>
+
+    <script src="app.js"></script>
+    <script>
+        const MYMEMORY_API = 'https://api.mymemory.translated.net/get';
+        let phrasesData = null;
+        let lastTranslation = '';
+        let favorites = JSON.parse(localStorage.getItem('phrase_favs') || '[]');
+
+        const LANG_MAP = { zh: 'zh-CN', ru: 'ru-RU', kk: 'kk-KZ' };
+
+        async function loadPhrases() {
+            try {
+                const res = await fetch('data/phrases.json');
+                phrasesData = await res.json();
+                renderPhrases();
+            } catch (e) {
+                document.getElementById('phraseList').innerHTML =
+                    '<div class="empty-state"><p>短语数据加载失败</p></div>';
+            }
+        }
+
+        function renderPhrases() {
+            if (!phrasesData) return;
+            const query = (document.getElementById('searchBox').value || '').toLowerCase().trim();
+            let html = '';
+            phrasesData.categories.forEach(cat => {
+                let filtered = cat.phrases;
+                if (query) {
+                    filtered = cat.phrases.filter(p =>
+                        p.zh.includes(query) || p.ru.toLowerCase().includes(query) ||
+                        p.kk.toLowerCase().includes(query) || p.pronunciation.includes(query) ||
+                        (p.tags || []).some(t => t.includes(query))
+                    );
+                }
+                if (filtered.length === 0) return;
+                const favPhrases = filtered.filter(p => favorites.includes(p.id));
+                const normalPhrases = filtered.filter(p => !favorites.includes(p.id));
+                const ordered = [...favPhrases, ...normalPhrases];
+
+                html += `<div class="category-header">${cat.name} (${ordered.length})</div>`;
+                ordered.forEach(p => {
+                    const isFav = favorites.includes(p.id);
+                    html += `<div class="phrase-card" id="phrase-${p.id}">
+                        <span class="lang-tag">🇷🇺 俄</span><span class="lang-tag">🇰🇿 哈</span>
+                        <button class="fav-btn ${isFav ? 'favorited' : ''}" onclick="toggleFav('${p.id}')">${isFav ? '⭐' : '☆'}</button>
+                        <button class="speak-btn" onclick="speakPhrase('${p.id}')">🔊</button>
+                        <div class="foreign-text">${p.ru}</div>
+                        <div class="foreign-text" style="font-size:0.9375rem;font-weight:600;">${p.kk}</div>
+                        <div class="pron">📖 ${p.pronunciation}</div>
+                        <div class="meaning">🇨🇳 ${p.zh}</div>
+                        <div class="context">💡 ${p.context}</div>
+                    </div>`;
+                });
+            });
+            if (!html) html = '<div class="empty-state"><p>没有匹配的短语</p></div>';
+            document.getElementById('phraseList').innerHTML = html;
+        }
+
+        function toggleFav(id) {
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(f => f !== id);
+            } else {
+                favorites.unshift(id);
+            }
+            localStorage.setItem('phrase_favs', JSON.stringify(favorites));
+            renderPhrases();
+        }
+
+        function speakPhrase(id) {
+            const phrase = findPhrase(id);
+            if (!phrase) return;
+            const utterance = new SpeechSynthesisUtterance(phrase.ru);
+            utterance.lang = 'ru-RU';
+            utterance.rate = 0.75;
+            speechSynthesis.speak(utterance);
+        }
+
+        function findPhrase(id) {
+            if (!phrasesData) return null;
+            for (const cat of phrasesData.categories) {
+                const found = cat.phrases.find(p => p.id === id);
+                if (found) return found;
+            }
+            return null;
+        }
+
+        async function doTranslate() {
+            const text = document.getElementById('translateInput').value.trim();
+            if (!text) return;
+            const fromLang = document.getElementById('fromLang').value;
+            const toLang = document.getElementById('toLang').value;
+            const langpair = `${LANG_MAP[fromLang]}|${LANG_MAP[toLang]}`;
+            try {
+                const res = await fetch(`${MYMEMORY_API}?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`);
+                const data = await res.json();
+                const translated = data.responseData?.translatedText || '翻译失败';
+                lastTranslation = translated;
+                document.getElementById('resultText').textContent = translated;
+                document.getElementById('translateResult').style.display = 'block';
+                document.getElementById('favResultBtn').textContent =
+                    favorites.includes('custom_' + translated) ? '★ 已收藏' : '☆ 收藏';
+            } catch (e) {
+                document.getElementById('resultText').textContent = '翻译失败，请检查网络连接';
+                document.getElementById('translateResult').style.display = 'block';
+            }
+        }
+
+        function speakResult() {
+            if (!lastTranslation) return;
+            const toLang = document.getElementById('toLang').value;
+            const langMap = { ru: 'ru-RU', kk: 'kk-KZ', zh: 'zh-CN' };
+            const utterance = new SpeechSynthesisUtterance(lastTranslation);
+            utterance.lang = langMap[toLang] || 'ru-RU';
+            utterance.rate = 0.75;
+            speechSynthesis.speak(utterance);
+        }
+
+        function copyResult() {
+            if (!lastTranslation) return;
+            navigator.clipboard.writeText(lastTranslation).then(() => {
+                const btns = document.querySelectorAll('#translateResult .action-btn');
+                if (btns.length > 1) {
+                    const orig = btns[1].textContent;
+                    btns[1].textContent = '✅ 已复制';
+                    setTimeout(() => { btns[1].textContent = orig; }, 1500);
+                }
+            });
+        }
+
+        function favResult() {
+            if (!lastTranslation) return;
+            const key = 'custom_' + lastTranslation;
+            if (favorites.includes(key)) {
+                favorites = favorites.filter(f => f !== key);
+            } else {
+                favorites.unshift(key);
+            }
+            localStorage.setItem('phrase_favs', JSON.stringify(favorites));
+            document.getElementById('favResultBtn').textContent =
+                favorites.includes(key) ? '★ 已收藏' : '☆ 收藏';
+        }
+
+        function swapLangs() {
+            const from = document.getElementById('fromLang');
+            const to = document.getElementById('toLang');
+            const tmp = from.value;
+            from.value = to.value;
+            to.value = tmp;
+        }
+
+        function showEmergency() {
+            document.getElementById('emergencyModal').classList.add('show');
+            const utterance = new SpeechSynthesisUtterance('Помогите! Помогите!');
+            utterance.lang = 'ru-RU';
+            utterance.rate = 0.7;
+            speechSynthesis.speak(utterance);
+        }
+
+        function hideEmergency() {
+            document.getElementById('emergencyModal').classList.remove('show');
+            speechSynthesis.cancel();
+        }
+
+        loadPhrases();
+    </script>
+</body>
+</html>
