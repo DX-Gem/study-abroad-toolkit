@@ -1,20 +1,18 @@
 """留学工具箱 — 后端 API 入口"""
-from fastapi import FastAPI
+import os
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 app = FastAPI(title="Study Abroad Toolkit API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["GET"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.get("/")
-async def root():
-    return {"status": "ok", "service": "Study Abroad Toolkit API"}
 
 
 @app.get("/health")
@@ -27,6 +25,8 @@ from backend.currency import (
     fetch_rates,
     convert_currency,
 )
+
+from backend.translate import translate_text, SUPPORTED_LANGS
 
 
 @app.get("/api/currency/rates")
@@ -93,3 +93,44 @@ async def convert_currency_endpoint(
         "result": result,
         "rate": round(result / amount, 6) if amount else 0,
     }
+
+
+class TranslateRequest(BaseModel):
+    text: str
+    from_lang: str = "zh"
+    to_lang: str = "ru"
+
+
+@app.get("/api/translate/langs")
+async def get_translate_langs():
+    """获取支持的翻译语言列表"""
+    return {"langs": SUPPORTED_LANGS}
+
+
+@app.post("/api/translate")
+async def translate_endpoint(body: TranslateRequest):
+    """翻译文本"""
+    text = body.text.strip()
+    from_lang = body.from_lang
+    to_lang = body.to_lang
+
+    if not text:
+        raise HTTPException(status_code=422, detail="Text is required")
+
+    valid = {lang["code"] for lang in SUPPORTED_LANGS}
+    if from_lang not in valid or to_lang not in valid:
+        raise HTTPException(status_code=422, detail=f"Unsupported language pair: {from_lang}→{to_lang}")
+
+    result = await translate_text(text, from_lang, to_lang)
+    return {
+        "text": text,
+        "from": from_lang,
+        "to": to_lang,
+        "result": result["translated"],
+        "match": result["match"],
+    }
+
+
+# 托管前端静态文件（本地 + Vercel 统一走这里）
+frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
+app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")

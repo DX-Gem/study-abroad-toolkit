@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多币种记账本 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f97316">
+    <style>
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            padding: 12px 8px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-card .stat-num {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .stat-card .stat-label {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .budget-bar {
+            height: 8px;
+            background: var(--border-light);
+            border-radius: 4px;
+            margin: 4px 0 14px;
+            overflow: hidden;
+        }
+        .budget-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .quick-add {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+        .quick-add .preview {
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            padding: 6px 0;
+            background: var(--primary-ghost);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .record-group {
+            margin-bottom: 18px;
+        }
+        .record-date {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 6px;
+        }
+        .record-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+            gap: 8px;
+        }
+        .record-row .cat-icon { font-size: 1.25rem; width: 36px; text-align: center; }
+        .record-row .info { flex: 1; min-width: 0; }
+        .record-row .info .note { font-size: 0.875rem; font-weight: 500; }
+        .record-row .info .meta { font-size: 0.75rem; color: var(--text-muted); }
+        .record-row .amounts { text-align: right; flex-shrink: 0; }
+        .record-row .amounts .orig { font-size: 0.875rem; font-weight: 600; }
+        .record-row .amounts .cny { font-size: 0.75rem; color: var(--text-muted); }
+        .record-row .del-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            opacity: 0.4;
+        }
+        .day-total {
+            text-align: right;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 4px 0 8px;
+        }
+        .export-bar {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>💰 留学工具箱</h1></div>
+    <main class="tool-page" style="padding-bottom:80px;">
+        <h1>💰 多币种记账本</h1>
+
+        <div class="stats-row" id="stats">
+            <div class="stat-card">
+                <div class="stat-num" id="monthTotal">¥0</div>
+                <div class="stat-label">本月支出</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="dailyAvg">¥0</div>
+                <div class="stat-label">本月日均</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="budgetLeft">¥3,000</div>
+                <div class="stat-label">月预算剩余</div>
+            </div>
+        </div>
+        <div class="budget-bar"><div class="budget-bar-fill" id="budgetFill" style="width:0%;background:var(--success);"></div></div>
+
+        <div class="quick-add">
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <select id="addCurrency" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.9375rem;background:var(--card-bg);">
+                    <option value="KZT">₸ 坚戈 (KZT)</option>
+                    <option value="RUB">₽ 卢布 (RUB)</option>
+                    <option value="CNY">¥ 人民币 (CNY)</option>
+                    <option value="USD">$ 美元 (USD)</option>
+                </select>
+                <input type="number" id="addAmount" placeholder="金额" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.9375rem;">
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <select id="addCategory" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.9375rem;background:var(--card-bg);">
+                    <option value="food">🍜 饮食</option>
+                    <option value="housing">🏠 住宿</option>
+                    <option value="transport">🚌 交通</option>
+                    <option value="comm">📱 通讯</option>
+                    <option value="study">📚 学习</option>
+                    <option value="entertain">🎮 娱乐</option>
+                    <option value="medical">🏥 医疗</option>
+                    <option value="shopping">🛒 购物</option>
+                    <option value="other">📌 其他</option>
+                </select>
+            </div>
+            <input type="text" id="addNote" placeholder="备注（可选）" style="width:100%;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.9375rem;margin-bottom:10px;">
+            <div class="preview" id="cnyPreview">≈ ¥0.00</div>
+            <button class="btn btn-primary" onclick="addRecord()">💾 记下</button>
+        </div>
+
+        <div id="recordList"></div>
+
+        <div class="export-bar">
+            <button class="btn btn-secondary" onclick="exportRecords()" style="flex:1;">📋 复制本月账单</button>
+            <button class="btn btn-secondary" onclick="setBudget()" style="flex:1;">⚙ 设预算</button>
+        </div>
+    </main>
+
+    <nav class="tab-bar">
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🆘<span>短语</span></a>
+        <a href="ledger.html" class="tab-item active">💰<span>记账</span></a>
+        <a href="timezone.html" class="tab-item">🕐<span>时区</span></a>
+        <a href="countdown.html" class="tab-item">✅<span>待办</span></a>
+    </nav>
+
+    <script src="app.js"></script>
+    <script>
+        const EXCHANGE_API = 'https://api.exchangerate-api.com/v4/latest/USD';
+        const CAT_EMOJI = { food: '🍜', housing: '🏠', transport: '🚌', comm: '📱', study: '📚', entertain: '🎮', medical: '🏥', shopping: '🛒', other: '📌' };
+        const CAT_NAMES = { food: '饮食', housing: '住宿', transport: '交通', comm: '通讯', study: '学习', entertain: '娱乐', medical: '医疗', shopping: '购物', other: '其他' };
+        let rates = { KZT: 71.86, RUB: 10.50, CNY: 1, USD: 7.21 };
+
+        function loadData() {
+            return JSON.parse(localStorage.getItem('ledger_data') || '{"records":[],"settings":{"monthly_budget_cny":3000,"default_currency":"KZT"}}');
+        }
+
+        function saveData(data) {
+            localStorage.setItem('ledger_data', JSON.stringify(data));
+        }
+
+        async function refreshRates() {
+            try {
+                const res = await fetch(EXCHANGE_API);
+                const data = await res.json();
+                // 转为 CNY 基准
+                const cnyRate = data.rates['CNY'];
+                const cnyRates = {};
+                for (const [code, rate] of Object.entries(data.rates)) {
+                    cnyRates[code] = code === 'CNY' ? 1 : +(rate / cnyRate).toFixed(6);
+                }
+                rates = cnyRates;
+                localStorage.setItem('cached_rates', JSON.stringify({rates: cnyRates, updated: data.date}));
+                return true;
+            } catch (e) {
+                const cached = localStorage.getItem('cached_rates');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    rates = parsed.rates;
+                }
+                return false;
+            }
+        }
+
+        function cnyAmount(amount, currency) {
+            const rate = rates[currency] || 1;
+            return amount / rate;
+        }
+
+        function formatCurrency(amount, currency) {
+            const symbols = { KZT: '₸', RUB: '₽', CNY: '¥', USD: '$' };
+            const sym = symbols[currency] || '';
+            return sym + Number(amount).toLocaleString();
+        }
+
+        function renderAll() {
+            const data = loadData();
+            const now = new Date();
+            const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            const monthRecords = data.records.filter(r => r.date.startsWith(thisMonth));
+            const totalCny = monthRecords.reduce((sum, r) => sum + (r.amount_cny || cnyAmount(r.amount, r.currency)), 0);
+            const daysIn = Math.max(1, now.getDate());
+            const dailyAvg = totalCny / daysIn;
+            const budget = data.settings.monthly_budget_cny || 3000;
+            const remaining = budget - totalCny;
+            const pct = Math.min(100, Math.round((totalCny / budget) * 100));
+
+            document.getElementById('monthTotal').textContent = '¥' + totalCny.toFixed(0);
+            document.getElementById('dailyAvg').textContent = '¥' + dailyAvg.toFixed(0);
+            document.getElementById('budgetLeft').textContent = '¥' + remaining.toFixed(0);
+            const fill = document.getElementById('budgetFill');
+            fill.style.width = pct + '%';
+            fill.style.background = pct >= 100 ? 'var(--error)' : pct >= 80 ? 'var(--warning)' : 'var(--success)';
+
+            const allRecords = [...data.records].sort((a, b) => b.date.localeCompare(a.date) || (b.created_at || '').localeCompare(a.created_at || ''));
+            let html = '';
+            let lastDate = '';
+            let daySum = 0;
+
+            for (let i = 0; i < allRecords.length; i++) {
+                const r = allRecords[i];
+                if (r.date !== lastDate) {
+                    if (lastDate && daySum > 0) {
+                        html += `<div class="day-total">日计 ¥${daySum.toFixed(2)}</div>`;
+                    }
+                    lastDate = r.date;
+                    daySum = 0;
+                    const d = new Date(r.date + 'T00:00:00');
+                    const weekdays = ['日','一','二','三','四','五','六'];
+                    html += `<div class="record-group"><div class="record-date">📅 ${r.date} 周${weekdays[d.getDay()]}</div>`;
+                }
+                const amtCny = r.amount_cny || cnyAmount(r.amount, r.currency);
+                daySum += amtCny;
+                html += `<div class="record-row">
+                    <div class="cat-icon">${CAT_EMOJI[r.category] || '📌'}</div>
+                    <div class="info">
+                        <div class="note">${r.note || CAT_NAMES[r.category]}</div>
+                        <div class="meta">${CAT_NAMES[r.category]}</div>
+                    </div>
+                    <div class="amounts">
+                        <div class="orig">${formatCurrency(r.amount, r.currency)}</div>
+                        <div class="cny">≈ ¥${amtCny.toFixed(2)}</div>
+                    </div>
+                    <button class="del-btn" onclick="deleteRecord('${r.id}')">🗑</button>
+                </div>`;
+            }
+            if (lastDate && daySum > 0) {
+                html += `<div class="day-total">日计 ¥${daySum.toFixed(2)}</div>`;
+            }
+            if (!html) {
+                html = '<div class="empty-state"><div class="empty-icon">📝</div><p>还没有记账，开始记第一笔吧</p></div>';
+            }
+            document.getElementById('recordList').innerHTML = html;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const amount = parseFloat(document.getElementById('addAmount').value) || 0;
+            const currency = document.getElementById('addCurrency').value;
+            const cny = cnyAmount(amount, currency);
+            const rate = rates[currency] || 1;
+            const symbols = { KZT: '₸', RUB: '₽', CNY: '¥', USD: '$' };
+            document.getElementById('cnyPreview').textContent =
+                amount > 0 ? `≈ ¥${cny.toFixed(2)}  (${rate.toFixed(2)}${symbols[currency]}/¥)` : '≈ ¥0.00';
+        }
+
+        function addRecord() {
+            const amount = parseFloat(document.getElementById('addAmount').value);
+            if (!amount || amount <= 0) return;
+            const currency = document.getElementById('addCurrency').value;
+            const category = document.getElementById('addCategory').value;
+            const note = document.getElementById('addNote').value.trim();
+            const data = loadData();
+            const record = {
+                id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                date: new Date().toISOString().slice(0, 10),
+                amount: amount,
+                currency: currency,
+                amount_cny: cnyAmount(amount, currency),
+                rate_used: rates[currency] || null,
+                category: category,
+                note: note || CAT_NAMES[category],
+                created_at: new Date().toISOString()
+            };
+            data.records.push(record);
+            saveData(data);
+            document.getElementById('addAmount').value = '';
+            document.getElementById('addNote').value = '';
+            renderAll();
+        }
+
+        function deleteRecord(id) {
+            if (!confirm('删除这条记录？')) return;
+            const data = loadData();
+            data.records = data.records.filter(r => r.id !== id);
+            saveData(data);
+            renderAll();
+        }
+
+        function exportRecords() {
+            const data = loadData();
+            const now = new Date();
+            const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            const monthRecords = data.records.filter(r => r.date.startsWith(thisMonth));
+            if (monthRecords.length === 0) { alert('本月无记录'); return; }
+            let text = `💰 ${thisMonth} 留学账单\n${'='.repeat(30)}\n\n`;
+            let total = 0;
+            monthRecords.forEach(r => {
+                const amtCny = r.amount_cny || cnyAmount(r.amount, r.currency);
+                total += amtCny;
+                text += `${r.date} ${CAT_EMOJI[r.category]} ${r.note || CAT_NAMES[r.category]} ${formatCurrency(r.amount, r.currency)} ≈ ¥${amtCny.toFixed(2)}\n`;
+            });
+            text += `\n${'='.repeat(30)}\n总计：¥${total.toFixed(2)}  |  预算：¥${data.settings.monthly_budget_cny}`;
+            navigator.clipboard.writeText(text).then(() => alert('✅ 账单已复制到剪贴板！'));
+        }
+
+        function setBudget() {
+            const data = loadData();
+            const newBudget = prompt('设置月度预算（人民币）：', data.settings.monthly_budget_cny || 3000);
+            if (newBudget && !isNaN(newBudget) && Number(newBudget) > 0) {
+                data.settings.monthly_budget_cny = Number(newBudget);
+                saveData(data);
+                renderAll();
+            }
+        }
+
+        document.getElementById('addAmount').addEventListener('input', updatePreview);
+        document.getElementById('addCurrency').addEventListener('change', updatePreview);
+
+        refreshRates().then(() => renderAll());
+    </script>
+</body>
+</html>

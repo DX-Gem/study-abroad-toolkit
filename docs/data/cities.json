@@ -1,0 +1,151 @@
+{
+  "cities": [
+    {
+      "id": "almaty",
+      "name": "阿拉木图",
+      "country": "🇰🇿 哈萨克斯坦",
+      "currency": "KZT",
+      "currencySymbol": "₸",
+      "lifestyles": {
+        "budget": {
+          "label": "节俭",
+          "description": "合租 + 自己做饭 + 公共交通",
+          "accommodation": 80000,
+          "food": 60000,
+          "transport": 8000,
+          "communication": 5000,
+          "entertainment": 15000,
+          "study": 10000
+        },
+        "normal": {
+          "label": "普通",
+          "description": "单间 + 食堂为主 + 偶尔打车",
+          "accommodation": 150000,
+          "food": 100000,
+          "transport": 15000,
+          "communication": 7000,
+          "entertainment": 30000,
+          "study": 15000
+        },
+        "comfort": {
+          "label": "舒适",
+          "description": "一居室 + 外卖自由 + 经常出行",
+          "accommodation": 250000,
+          "food": 150000,
+          "transport": 30000,
+          "communication": 10000,
+          "entertainment": 60000,
+          "study": 25000
+        }
+      }
+    },
+    {
+      "id": "astana",
+      "name": "阿斯塔纳",
+      "country": "🇰🇿 哈萨克斯坦",
+      "currency": "KZT",
+      "currencySymbol": "₸",
+      "lifestyles": {
+        "budget": { "label": "节俭", "description": "合租 + 自己做饭 + 公共交通", "accommodation": 90000, "food": 70000, "transport": 8000, "communication": 5000, "entertainment": 20000, "study": 10000 },
+        "normal": { "label": "普通", "description": "单间 + 食堂为主 + 偶尔打车", "accommodation": 180000, "food": 110000, "transport": 15000, "communication": 7000, "entertainment": 40000, "study": 15000 },
+        "comfort": { "label": "舒适", "description": "一居室 + 外卖自由 + 经常出行", "accommodation": 300000, "food": 170000, "transport": 35000, "communication": 10000, "entertainment": 70000, "study": 25000 }
+      }
+    },
+    {
+      "id": "tashkent",
+      "name": "塔什干",
+      "country": "🇺🇿 乌兹别克斯坦",
+      "currency": "USD",
+      "currencySymbol": "$",
+      "lifestyles": {
+        "budget": { "label": "节俭", "description": "合租 + 自己做饭 + 公共交通", "accommodation": 120, "food": 100, "transport": 10, "communication": 8, "entertainment": 25, "study": 15 },
+        "normal": { "label": "普通", "description": "单间 + 食堂为主 + 偶尔打车", "accommodation": 250, "food": 180, "transport": 25, "communication": 12, "entertainment": 50, "study": 25 },
+        "comfort": { "label": "舒适", "description": "一居室 + 外卖自由 + 经常出行", "accommodation": 450, "food": 280, "transport": 50, "communication": 15, "entertainment": 100, "study": 40 }
+      }
+    },
+    {
+      "id": "moscow",
+      "name": "莫斯科",
+      "country": "🇷🇺 俄罗斯",
+      "currency": "RUB",
+      "currencySymbol": "₽",
+      "lifestyles": {
+        "budget": { "label": "节俭", "description": "合租 + 自己做饭 + 公共交通", "accommodation": 25000, "food": 15000, "transport": 3000, "communication": 800, "entertainment": 5000, "study": 3000 },
+        "normal": { "label": "普通", "description": "单间 + 食堂为主 + 偶尔打车", "accommodation": 45000, "food": 25000, "transport": 6000, "communication": 1200, "entertainment": 12000, "study": 5000 },
+        "comfort": { "label": "舒适", "description": "一居室 + 外卖自由 + 经常出行", "accommodation": 80000, "food": 40000, "transport": 15000, "communication": 2000, "entertainment": 25000, "study": 8000 }
+      }
+    },
+    {
+      "id": "bishkek",
+      "name": "比什凯克",
+      "country": "🇰🇬 吉尔吉斯斯坦",
+      "currency": "USD",
+      "currencySymbol": "$",
+      "lifestyles": {
+        "budget": { "label": "节俭", "description": "合租 + 自己做饭 + 公共交通", "accommodation": 100, "food": 80, "transport": 8, "communication": 5, "entertainment": 20, "study": 10 },
+        "normal": { "label": "普通", "description": "单间 + 食堂为主 + 偶尔打车", "accommodation": 200, "food": 140, "transport": 20, "communication": 10, "entertainment": 40, "study": 20 },
+        "comfort": { "label": "舒适", "description": "一居室 + 外卖自由 + 经常出行", "accommodation": 380, "food": 230, "transport": 40, "communication": 15, "entertainment": 80, "study": 35 }
+      }
+    },
+    {
+      "id": "dushanbe",
+      "name": "杜尚别",
+      "country": "🇹🇯 塔吉克斯坦",
+      "currency": "USD",
+      "currencySymbol": "$",
+      "lifestyles": {
+        "budget": { "label": "节俭", "description": "合租 + 自己做饭 + 公共交通", "accommodation": 80, "food": 70, "transport": 5, "communication": 5, "entertainment": 15, "study": 10 },
+        "normal": { "label": "普通", "description": "单间 + 食堂为主 + 偶尔打车", "accommodation": 160, "food": 120, "transport": 15, "communication": 8, "entertainment": 30, "study": 18 },
+        "comfort": { "label": "舒适", "description": "一居室 + 外卖自由 + 经常出行", "accommodation": 300, "food": 200, "transport": 30, "communication": 12, "entertainment": 60, "study": 30 }
+      }
+    },
+    {
+      "id": "beijing",
+      "name": "北京（参考）",
+      "country": "🇨🇳 中国",
+      "currency": "CNY",
+      "currencySymbol": "¥",
+      "lifestyles": {
+        "budget": { "label": "节俭", "description": "合租 + 自己做饭 + 公共交通", "accommodation": 2000, "food": 1200, "transport": 200, "communication": 100, "entertainment": 400, "study": 200 },
+        "normal": { "label": "普通", "description": "单间 + 食堂为主 + 偶尔打车", "accommodation": 3500, "food": 2000, "transport": 400, "communication": 150, "entertainment": 800, "study": 350 },
+        "comfort": { "label": "舒适", "description": "一居室 + 外卖自由 + 经常出行", "accommodation": 6000, "food": 3500, "transport": 1000, "communication": 200, "entertainment": 2000, "study": 600 }
+      }
+    },
+    {
+      "id": "minsk",
+      "name": "明斯克",
+      "country": "🇧🇾 白俄罗斯",
+      "currency": "USD",
+      "currencySymbol": "$",
+      "lifestyles": {
+        "budget": { "label": "节俭", "description": "合租 + 自己做饭 + 公共交通", "accommodation": 120, "food": 90, "transport": 12, "communication": 8, "entertainment": 20, "study": 12 },
+        "normal": { "label": "普通", "description": "单间 + 食堂为主 + 偶尔打车", "accommodation": 230, "food": 160, "transport": 28, "communication": 12, "entertainment": 45, "study": 22 },
+        "comfort": { "label": "舒适", "description": "一居室 + 外卖自由 + 经常出行", "accommodation": 420, "food": 260, "transport": 55, "communication": 18, "entertainment": 90, "study": 38 }
+      }
+    },
+    {
+      "id": "warsaw",
+      "name": "华沙",
+      "country": "🇵🇱 波兰",
+      "currency": "EUR",
+      "currencySymbol": "€",
+      "lifestyles": {
+        "budget": { "label": "节俭", "description": "合租 + 自己做饭 + 公共交通", "accommodation": 200, "food": 140, "transport": 20, "communication": 10, "entertainment": 35, "study": 20 },
+        "normal": { "label": "普通", "description": "单间 + 食堂为主 + 偶尔打车", "accommodation": 380, "food": 240, "transport": 40, "communication": 15, "entertainment": 70, "study": 35 },
+        "comfort": { "label": "舒适", "description": "一居室 + 外卖自由 + 经常出行", "accommodation": 650, "food": 380, "transport": 80, "communication": 25, "entertainment": 140, "study": 55 }
+      }
+    },
+    {
+      "id": "istanbul",
+      "name": "伊斯坦布尔",
+      "country": "🇹🇷 土耳其",
+      "currency": "USD",
+      "currencySymbol": "$",
+      "lifestyles": {
+        "budget": { "label": "节俭", "description": "合租 + 自己做饭 + 公共交通", "accommodation": 150, "food": 110, "transport": 18, "communication": 8, "entertainment": 30, "study": 15 },
+        "normal": { "label": "普通", "description": "单间 + 食堂为主 + 偶尔打车", "accommodation": 300, "food": 190, "transport": 35, "communication": 12, "entertainment": 60, "study": 28 },
+        "comfort": { "label": "舒适", "description": "一居室 + 外卖自由 + 经常出行", "accommodation": 550, "food": 320, "transport": 70, "communication": 18, "entertainment": 120, "study": 45 }
+      }
+    }
+  ]
+}

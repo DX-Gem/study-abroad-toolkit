@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出发倒计时 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f97316">
+    <style>
+        .countdown-hero {
+            text-align: center;
+            padding: 24px 16px;
+            background: linear-gradient(160deg, #fb923c, #ea580c);
+            border-radius: var(--radius-lg);
+            color: #fff;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-lg);
+        }
+        .countdown-hero .days {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 0.05em;
+        }
+        .countdown-hero .label {
+            font-size: 0.9375rem;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+        .countdown-hero .dest {
+            font-size: 0.8125rem;
+            opacity: 0.7;
+            margin-top: 8px;
+        }
+        .countdown-hero .settings-link {
+            color: #fff;
+            opacity: 0.8;
+            font-size: 0.75rem;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .phase-block {
+            margin-bottom: 20px;
+        }
+        .phase-header {
+            font-size: 0.875rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .phase-3months { background: #fef2f2; color: #dc2626; }
+        .phase-1month { background: #fffbeb; color: #d97706; }
+        .phase-1week { background: #eff6ff; color: #2563eb; }
+        .phase-arrival { background: #f0fdf4; color: #16a34a; }
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            margin-bottom: 4px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .task-item:active { background: var(--border-light); }
+        .task-item.done { opacity: 0.55; }
+        .task-item.done .task-title { text-decoration: line-through; }
+        .task-item .task-check {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .task-item.done .task-check {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+        .task-info { flex: 1; min-width: 0; }
+        .task-title { font-size: 0.875rem; font-weight: 500; }
+        .task-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+        .task-links { display: flex; gap: 6px; margin-top: 4px; }
+        .task-link {
+            font-size: 0.6875rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--primary-ghost);
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .task-expand {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+            background: var(--primary-ghost);
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+            margin-top: -4px;
+            margin-bottom: 4px;
+            font-size: 0.8125rem;
+            padding: 0 12px;
+            color: var(--text-muted);
+        }
+        .task-expand.open {
+            max-height: 120px;
+            padding: 8px 12px;
+        }
+        .add-task-bar {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>✅ 留学工具箱</h1></div>
+    <main class="tool-page" style="padding-bottom:80px;">
+        <h1>✅ 出发倒计时</h1>
+
+        <div class="countdown-hero" id="countdownHero">
+            <div class="label">🎓 距离出发还有</div>
+            <div class="days" id="daysLeft">--</div>
+            <div class="label">天</div>
+            <div class="dest" id="destText">哈萨克斯坦国立大学</div>
+            <div class="dest" id="dateText">2026年10月1日</div>
+            <a class="settings-link" onclick="editSettings()">⚙ 修改</a>
+            <div style="margin-top:12px;width:80%;margin-left:auto;margin-right:auto;">
+                <div class="progress-bar" style="background:rgba(255,255,255,0.3);">
+                    <div class="progress-bar-fill" id="totalProgress" style="width:0%;background:#fff;"></div>
+                </div>
+                <div style="font-size:0.75rem;opacity:0.7;margin-top:4px;" id="progressLabel">0%</div>
+            </div>
+        </div>
+
+        <div id="taskContainer"></div>
+
+        <div class="add-task-bar">
+            <input type="text" id="newTaskInput" placeholder="添加自定义待办..." style="flex:1;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.875rem;">
+            <button class="btn btn-primary" onclick="addCustomTask()" style="width:auto;padding:10px 16px;">+</button>
+        </div>
+    </main>
+
+    <nav class="tab-bar">
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🆘<span>短语</span></a>
+        <a href="ledger.html" class="tab-item">💰<span>记账</span></a>
+        <a href="timezone.html" class="tab-item">🕐<span>时区</span></a>
+        <a href="countdown.html" class="tab-item active">✅<span>待办</span></a>
+    </nav>
+
+    <script src="app.js"></script>
+    <script>
+        const DEFAULT_TASKS = [
+            { id:'passport', phase:'3months', title:'护照有效期检查（6个月以上）', done:false, deadline:'2026-07-01', tip:'护照有效期必须覆盖留学期间，不足提前换发' },
+            { id:'admission', phase:'3months', title:'确认录取通知书到手', done:false, deadline:'2026-07-01', tip:'收到电子版后打印多份备用' },
+            { id:'visa', phase:'3months', title:'办理签证', done:false, deadline:'2026-07-15', tip:'哈国签证需护照原件+2寸照片×2+学校邀请函。建议出发前2-3个月开始办理', links:[{text:'🔗查看材料清单', url:'#'}] },
+            { id:'medical_check', phase:'3months', title:'体检 + 疫苗接种', done:false, deadline:'2026-07-20', tip:'咨询出入境检疫局，确认需要哪些疫苗' },
+            { id:'flight', phase:'3months', title:'订机票', done:false, deadline:'2026-08-01', tip:'关注留学生票（多一件行李额度），提前订更便宜' },
+            { id:'housing', phase:'3months', title:'预订住宿', done:false, deadline:'2026-08-15', tip:'联系学校宿舍或找校外公寓' },
+            { id:'exchange', phase:'1month', title:'换汇（备足首月现金）', done:false, deadline:'2026-09-01', tip:'建议准备首月生活费现金（约20-30万坚戈）', links:[{text:'🔗汇率换算器', url:'currency.html'}] },
+            { id:'packing', phase:'1month', title:'行李打包', done:false, deadline:'2026-09-05', tip:'按季节准备衣物，中亚冬季寒冷。电器注意电压转换', links:[{text:'🔗行李清单', url:'packing.html'}] },
+            { id:'offline_map', phase:'1month', title:'下载离线地图', done:false, deadline:'2026-09-01', tip:'Google Maps 或 2GIS 下载阿拉木图离线地图' },
+            { id:'student_card', phase:'1month', title:'办国际学生证 (ISIC)', done:false, deadline:'2026-09-01', tip:'国际学生证可享受机票/景点/交通折扣' },
+            { id:'insurance', phase:'1month', title:'买境外保险', done:false, deadline:'2026-09-01', tip:'覆盖医疗+意外+行李丢失，保额建议30万以上' },
+            { id:'confirm_flight', phase:'1week', title:'确认航班时间、行李额度', done:false, deadline:'2026-09-24', tip:'提前24小时网上值机' },
+            { id:'print_docs', phase:'1week', title:'打印所有重要文件', done:false, deadline:'2026-09-25', tip:'护照复印件×5、录取通知书×3、住宿确认×3、保险单×2。分开存放' },
+            { id:'install_apps', phase:'1week', title:'手机装好必备 App', done:false, deadline:'2026-09-26', tip:'2GIS(地图)、Yandex Go(打车)、Kaspi(支付)、WhatsApp/Telegram' },
+            { id:'notify_family', phase:'1week', title:'通知家人行程', done:false, deadline:'2026-09-28', tip:'发航班号+到达时间+住宿地址给家人' },
+            { id:'sim_card', phase:'arrival', title:'换当地 SIM 卡', done:false, deadline:'', tip:'机场或市区办理 Beeline/Tele2/Activ，需护照' },
+            { id:'register', phase:'arrival', title:'学校报到注册', done:false, deadline:'', tip:'带护照+录取通知书+照片，按要求完成注册手续' },
+            { id:'residence', phase:'arrival', title:'办理居留登记', done:false, deadline:'', tip:'入境后3个工作日内办理，学校国际处可协助' },
+            { id:'call_home', phase:'arrival', title:'给家人报平安', done:false, deadline:'', tip:'落地就发消息！' }
+        ];
+
+        const PHASE_INFO = {
+            '3months': { emoji: '🏁', name: '出发前 3 个月', css: 'phase-3months' },
+            '1month': { emoji: '📦', name: '出发前 1 个月', css: 'phase-1month' },
+            '1week': { emoji: '⏰', name: '出发前 1 周', css: 'phase-1week' },
+            'arrival': { emoji: '🛬', name: '到达当天', css: 'phase-arrival' },
+        };
+
+        function loadData() {
+            let data = JSON.parse(localStorage.getItem('countdown_data') || 'null');
+            if (!data) {
+                data = {
+                    departure_date: '2026-10-01',
+                    destination: '哈萨克斯坦国立大学',
+                    tasks: JSON.parse(JSON.stringify(DEFAULT_TASKS))
+                };
+                saveData(data);
+            }
+            return data;
+        }
+
+        function saveData(data) {
+            localStorage.setItem('countdown_data', JSON.stringify(data));
+        }
+
+        function renderAll() {
+            const data = loadData();
+            const departure = new Date(data.departure_date + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const diffMs = departure.getTime() - today.getTime();
+            const days = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+
+            document.getElementById('daysLeft').textContent = days;
+            document.getElementById('destText').textContent = data.destination;
+            document.getElementById('dateText').textContent = data.departure_date;
+
+            const total = data.tasks.length;
+            const done = data.tasks.filter(t => t.done).length;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            document.getElementById('totalProgress').style.width = pct + '%';
+            document.getElementById('progressLabel').textContent = `${done}/${total} 已完成 (${pct}%)`;
+
+            let html = '';
+            for (const [phaseKey, phaseInfo] of Object.entries(PHASE_INFO)) {
+                const phaseTasks = data.tasks.filter(t => t.phase === phaseKey);
+                if (phaseTasks.length === 0) continue;
+                const phaseDone = phaseTasks.filter(t => t.done).length;
+                html += `<div class="phase-block">
+                    <div class="phase-header ${phaseInfo.css}">
+                        ${phaseInfo.emoji} ${phaseInfo.name}
+                        <span style="margin-left:auto;font-size:0.75rem;">${phaseDone}/${phaseTasks.length}</span>
+                    </div>`;
+                phaseTasks.forEach(t => {
+                    html += `<div class="task-item ${t.done ? 'done' : ''}" onclick="toggleTask('${t.id}')">
+                        <div class="task-check">${t.done ? '✓' : ''}</div>
+                        <div class="task-info">
+                            <div class="task-title">${t.title}</div>
+                            <div class="task-meta">${t.deadline ? '📅 ' + t.deadline : ''}</div>
+                            ${t.links ? `<div class="task-links">${t.links.map(l => `<a class="task-link" href="${l.url}" onclick="event.stopPropagation()">${l.text}</a>`).join('')}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="task-expand" id="expand-${t.id}">💡 ${t.tip || ''}</div>`;
+                });
+                html += `</div>`;
+            }
+            document.getElementById('taskContainer').innerHTML = html;
+        }
+
+        function toggleTask(id) {
+            const data = loadData();
+            const task = data.tasks.find(t => t.id === id);
+            if (task) {
+                task.done = !task.done;
+                saveData(data);
+                renderAll();
+                // Expand/collapse tip
+                const expand = document.getElementById('expand-' + id);
+                if (expand) {
+                    expand.classList.toggle('open');
+                }
+            }
+        }
+
+        function editSettings() {
+            const data = loadData();
+            const newDate = prompt('出发日期 (YYYY-MM-DD)：', data.departure_date);
+            if (newDate && /^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+                data.departure_date = newDate;
+                const newDest = prompt('目标学校：', data.destination);
+                if (newDest) data.destination = newDest;
+                saveData(data);
+                renderAll();
+            }
+        }
+
+        function addCustomTask() {
+            const input = document.getElementById('newTaskInput');
+            const title = input.value.trim();
+            if (!title) return;
+            const data = loadData();
+            data.tasks.push({
+                id: 'custom_' + Date.now(),
+                phase: '3months',
+                title: title,
+                done: false,
+                deadline: '',
+                tip: ''
+            });
+            saveData(data);
+            input.value = '';
+            renderAll();
+        }
+
+        renderAll();
+    </script>
+</body>
+</html>
