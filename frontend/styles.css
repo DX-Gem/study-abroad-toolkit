@@ -97,6 +97,23 @@ body {
     position: relative;
     overflow: hidden;
 }
+/* 头部装饰圆点 */
+.header::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: -20px;
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+}
+.header::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+}
 
 /* 右上角人像图标 */
 .header-avatar {
@@ -699,6 +716,16 @@ body {
 
 .tab-item.active {
     color: var(--primary);
+    position: relative;
+}
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%; transform: translateX(-50%);
+    width: 20px; height: 3px;
+    background: var(--primary);
+    border-radius: 3px;
 }
 
 .tab-item.active span {
@@ -899,14 +926,26 @@ body {
     padding: 20px 18px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-light);
+    border-top: 3px solid var(--primary);
     transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
 }
-
+.tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary-dark));
+    opacity: 0;
+    transition: opacity var(--transition);
+}
 .tool-card:active {
     transform: scale(0.97);
     box-shadow: var(--shadow-md);
     border-color: var(--primary);
 }
+.tool-card:active::before { opacity: 1; }
 
 /* ===== 微交互动效 ===== */
 
@@ -1043,4 +1082,59 @@ body {
 @keyframes toastOut {
     from { opacity: 1; transform: translateX(-50%) translateY(0); }
     to { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+/* ===== 装饰元素 ===== */
+
+/* 标题渐变下划线 */
+.tool-page h1 {
+    position: relative;
+    padding-bottom: 10px;
+}
+.tool-page h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 48px; height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 3px;
+}
+
+/* 结果卡片装饰 */
+.result-card {
+    background: var(--card-bg-solid);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+}
+.result-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 60px; height: 60px;
+    background: radial-gradient(circle, rgba(231,111,81,0.04) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+/* 卡片悬停微光 */
+@keyframes cardShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* 活跃Tab渐变发光 */
+.tab-item.active {
+    text-shadow: 0 0 12px rgba(231,111,81,0.3);
+}
+
+/* 数字显示微装饰 */
+.value {
+    font-size: 1.75rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
