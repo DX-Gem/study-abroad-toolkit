@@ -1,33 +1,43 @@
-/* === 留学工具箱 — 全局样式（Glass Morphism · 现代设计） === */
+/* === 留学工具箱 — Sunset Boulevard 设计系统 === */
+/* 配色: theme-factory Sunset Boulevard + brand-guidelines 字体层级 */
 
-/* --- CSS 变量 --- */
+/* --- CSS 变量（亮色模式） --- */
 :root {
-    --primary: #ff6b35;
-    --primary-dark: #e55a2b;
-    --primary-light: #fff5f0;
-    --primary-ghost: #fff0e8;
-    --accent: #ff8c5a;
-    --bg: #faf8f5;
-    --card-bg: rgba(255,255,255,0.85);
-    --card-bg-solid: #ffffff;
-    --glass: rgba(255,255,255,0.7);
-    --glass-border: rgba(255,255,255,0.9);
-    --text: #1c1917;
-    --text-muted: #78716c;
-    --border: #f0e0d6;
-    --border-light: #f5ebe3;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --error: #ef4444;
+    --primary: #E76F51;
+    --primary-dark: #C85D3F;
+    --primary-light: #FFF0EB;
+    --primary-ghost: #FFE8E0;
+    --accent: #F4A261;
+    --accent-dark: #264653;
+    --bg: #FFF5EC;
+    --card-bg: rgba(255,255,255,0.88);
+    --card-bg-solid: #FFFFFF;
+    --glass: rgba(255,255,255,0.72);
+    --glass-border: rgba(255,255,255,0.92);
+    --text: #1C1A18;
+    --text-muted: #8B7E74;
+    --border: #F0DCD0;
+    --border-light: #F5E8DF;
+    --success: #2A9D8F;
+    --warning: #E9C46A;
+    --error: #E76F51;
     --radius-sm: 12px;
     --radius: 20px;
     --radius-lg: 24px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
-    --shadow: 0 4px 16px rgba(0,0,0,0.04), 0 2px 6px rgba(0,0,0,0.02);
-    --shadow-md: 0 8px 24px rgba(0,0,0,0.06), 0 4px 8px rgba(255,107,53,0.04);
-    --shadow-lg: 0 16px 40px rgba(0,0,0,0.08), 0 6px 12px rgba(255,107,53,0.06);
+    --shadow-sm: 0 1px 3px rgba(28,26,24,0.04), 0 1px 2px rgba(28,26,24,0.03);
+    --shadow: 0 4px 16px rgba(28,26,24,0.04), 0 2px 6px rgba(28,26,24,0.02);
+    --shadow-md: 0 8px 24px rgba(28,26,24,0.06), 0 4px 8px rgba(231,111,81,0.05);
+    --shadow-lg: 0 16px 40px rgba(28,26,24,0.08), 0 6px 12px rgba(231,111,81,0.08);
     --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* --- Font Hierarchy（brand-guidelines） --- */
+h1 { font-size: 1.5rem; font-weight: 800; color: var(--text); }
+h2 { font-size: 1.125rem; font-weight: 700; color: var(--text); }
+h3 { font-size: 1rem; font-weight: 600; color: var(--accent-dark); }
+body { font-size: 0.9375rem; color: var(--text); }
+.subtitle, .text-muted { font-size: 0.8125rem; color: var(--text-muted); }
+.caption { font-size: 0.6875rem; color: var(--text-muted); }
 
 /* --- Reset --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,7 +45,7 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
                  "Microsoft YaHei", "Noto Sans SC", sans-serif;
-    background: linear-gradient(180deg, #fef9f5 0%, #faf8f5 30%, #f5f0eb 100%);
+    background: linear-gradient(180deg, #FFF5EC 0%, #FFF8F3 30%, #F5EDE5 100%);
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
@@ -46,6 +56,33 @@ body {
     text-rendering: optimizeLegibility;
     word-break: break-all;
     overflow-wrap: break-word;
+}
+
+/* --- Dark Mode --- */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #F4A261;
+        --primary-dark: #E76F51;
+        --primary-light: #2C1A10;
+        --primary-ghost: #2A1E16;
+        --accent: #E9C46A;
+        --accent-dark: #8ECAE6;
+        --bg: #1A1512;
+        --card-bg: rgba(30,28,26,0.9);
+        --card-bg-solid: #1E1C1A;
+        --glass: rgba(30,28,26,0.75);
+        --glass-border: rgba(255,255,255,0.08);
+        --text: #F0E8E0;
+        --text-muted: #9B8E84;
+        --border: #3A3028;
+        --border-light: #2E2620;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+        --shadow: 0 4px 16px rgba(0,0,0,0.3);
+        --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+        --shadow-lg: 0 16px 40px rgba(0,0,0,0.5);
+    }
+    body { background: linear-gradient(180deg, #1A1512 0%, #1E1814 30%, #151210 100%); }
+    .header { background: linear-gradient(160deg, #3A2018 0%, #4A2A1A 40%, #2A1810 100%); }
 }
 
 /* --- Smooth page transitions --- */
@@ -80,7 +117,7 @@ body {
 
 /* --- Header --- */
 .header {
-    background: linear-gradient(160deg, #fb923c 0%, #f97316 40%, #ea580c 100%);
+    background: linear-gradient(160deg, #F4A261 0%, #E76F51 40%, #C85D3F 100%);
     color: #fff;
     padding: 32px 20px 28px;
     text-align: center;
@@ -757,7 +794,7 @@ body {
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #ff6b35, #e55a2b);
+    background: linear-gradient(135deg, #E76F51, #C85D3F);
     padding: 24px 20px 20px;
     text-align: center;
     color: #fff;
@@ -848,7 +885,7 @@ body {
 .modal-btn-cancel:active { background: #e7e5e4; }
 
 .modal-btn-update {
-    background: linear-gradient(135deg, #ff6b35, #e55a2b);
+    background: linear-gradient(135deg, #E76F51, #C85D3F);
     color: #fff;
 }
 .modal-btn-update:active { opacity: 0.85; }
@@ -871,9 +908,9 @@ body {
 .btn:active { transform: scale(0.97); }
 
 .btn-primary {
-    background: linear-gradient(135deg, #ff6b35, #e55a2b);
+    background: linear-gradient(135deg, #E76F51, #C85D3F);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(255,107,53,0.25);
+    box-shadow: 0 4px 12px rgba(231,111,81,0.3);
 }
 
 .btn-secondary {
