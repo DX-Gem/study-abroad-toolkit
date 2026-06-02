@@ -1,7 +1,12 @@
 package com.liudianxun.toolkit;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -10,6 +15,13 @@ import android.view.WindowManager;
 import android.os.Build;
 import android.view.View;
 import android.speech.tts.TextToSpeech;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
@@ -108,6 +120,61 @@ public class MainActivity extends Activity {
                 }
             }
         }, "AndroidTTS");
+
+        // 应用内更新接口
+        webView.addJavascriptInterface(new Object() {
+            @android.webkit.JavascriptInterface
+            public void downloadAndInstall(String apkUrl) {
+                new Thread(() -> {
+                    try {
+                        // 在主线程显示提示
+                        new Handler(Looper.getMainLooper()).post(() ->
+                            Toast.makeText(MainActivity.this, "正在下载更新...", Toast.LENGTH_SHORT).show());
+
+                        // 下载 APK
+                        URL url = new URL(apkUrl);
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        conn.setConnectTimeout(15000);
+                        conn.setReadTimeout(60000);
+                        conn.connect();
+
+                        File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                        if (dir == null) dir = getCacheDir();
+                        File apkFile = new File(dir, "toolkit-update.apk");
+                        if (apkFile.exists()) apkFile.delete();
+
+                        InputStream in = conn.getInputStream();
+                        FileOutputStream out = new FileOutputStream(apkFile);
+                        byte[] buf = new byte[8192];
+                        int len;
+                        while ((len = in.read(buf)) > 0) {
+                            out.write(buf, 0, len);
+                        }
+                        out.close();
+                        in.close();
+                        conn.disconnect();
+
+                        // 安装 APK
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        Uri apkUri;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            apkUri = androidx.core.content.FileProvider.getUriForFile(
+                                MainActivity.this, getPackageName() + ".fileprovider", apkFile);
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        } else {
+                            apkUri = Uri.fromFile(apkFile);
+                        }
+                        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+
+                    } catch (Exception e) {
+                        new Handler(Looper.getMainLooper()).post(() ->
+                            Toast.makeText(MainActivity.this, "下载失败: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                    }
+                }).start();
+            }
+        }, "AndroidUpdate");
 
         // 加载本地首页
         webView.loadUrl("file:///android_asset/index.html");

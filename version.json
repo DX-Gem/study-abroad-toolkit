@@ -1,0 +1,8 @@
+{
+  "versionCode": 8,
+  "versionName": "v2.0",
+  "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
+  "apkSize": "2.5MB",
+  "changelog": "13国留学目的地系统 · 动态工具适配 · 6语言短语 · 时区自动匹配 · 应用内更新",
+  "forceUpdate": false
+}
