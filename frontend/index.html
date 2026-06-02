@@ -82,12 +82,19 @@
     </div>
     <script src="data/country-data.js"></script>
     <script>
-        // 首页根据已选国家展示个性化内容
+        // 首次使用 → 跳转引导页
         (function() {
+            var profile = localStorage.getItem('user_profile');
+            if (!profile) {
+                window.location.href = 'onboarding.html';
+                return;
+            }
+
             const country = getSelectedCountry();
             if (country) {
                 document.getElementById('heroFlag').textContent = country.flag;
-                document.getElementById('heroTitle').textContent = '🇨🇳 → ' + country.flag + ' ' + country.name;
+                var userName = (JSON.parse(localStorage.getItem('user_profile') || '{}')).name || '同学';
+                document.getElementById('heroTitle').textContent = userName + '，🇨🇳 → ' + country.flag + ' ' + country.name;
                 document.getElementById('heroDesc').textContent =
                     `货币：${country.currency.name} | 时区：${country.timezone.utc} | 月生活费约 ${country.cost.monthly}`;
                 document.getElementById('headerSubtitle').textContent =

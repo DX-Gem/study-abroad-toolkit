@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>欢迎 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="theme-color" content="#ff6b35">
+    <style>
+        body { background: linear-gradient(180deg, #fef9f5 0%, #faf8f5 100%); }
+        .onboard-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0 20px;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .onboard-hero {
+            text-align: center;
+            padding: 48px 20px 32px;
+        }
+        .onboard-hero .logo {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 12px;
+            animation: scaleIn 0.5s ease-out;
+        }
+        .onboard-hero h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .onboard-hero p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .onboard-card {
+            background: var(--card-bg-solid);
+            border-radius: var(--radius-lg);
+            padding: 24px 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            margin-bottom: 16px;
+        }
+        .onboard-card h2 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            background: var(--bg);
+            color: var(--text);
+            transition: all var(--transition);
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255,107,53,0.1);
+        }
+        .btn-start {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, #ff6b35, #e55a2b);
+            color: #fff;
+            font-size: 1.125rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(255,107,53,0.3);
+            transition: all var(--transition);
+            margin-top: 8px;
+            margin-bottom: 32px;
+        }
+        .btn-start:active { transform: scale(0.96); opacity: 0.9; }
+        .skip-link {
+            text-align: center;
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+            text-decoration: none;
+            padding: 12px;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="onboard-container">
+        <div class="onboard-hero">
+            <span class="logo">🧰</span>
+            <h1>留学工具箱</h1>
+            <p>填写基本信息，为你定制专属工具</p>
+        </div>
+
+        <div class="onboard-card">
+            <h2>👤 基本信息</h2>
+            <div class="form-group">
+                <label>你的名字</label>
+                <input type="text" id="userName" placeholder="输入你的名字或昵称" autocomplete="name">
+            </div>
+        </div>
+
+        <div class="onboard-card">
+            <h2>🌍 留学目的地</h2>
+            <div class="form-group">
+                <label>选择国家</label>
+                <select id="userCountry"></select>
+            </div>
+        </div>
+
+        <div class="onboard-card">
+            <h2>📅 留学计划</h2>
+            <div class="form-group">
+                <label>出发日期</label>
+                <input type="date" id="userDate">
+            </div>
+            <div class="form-group">
+                <label>月预算（人民币）</label>
+                <input type="number" id="userBudget" placeholder="例如：5000" inputmode="numeric">
+            </div>
+        </div>
+
+        <button class="btn-start" onclick="saveAndEnter()">🚀 开始使用</button>
+        <a class="skip-link" href="select.html">跳过，直接选国家 →</a>
+    </div>
+
+    <script src="data/country-data.js"></script>
+    <script>
+        // 填充国家下拉框
+        (function() {
+            var select = document.getElementById('userCountry');
+            COUNTRIES.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.flag + ' ' + c.name + ' — ' + c.currency.name;
+                select.appendChild(opt);
+            });
+            // 预填默认：哈萨克斯坦
+            select.value = 'kazakhstan';
+        })();
+
+        function saveAndEnter() {
+            var name = document.getElementById('userName').value.trim();
+            var country = document.getElementById('userCountry').value;
+            var date = document.getElementById('userDate').value;
+            var budget = document.getElementById('userBudget').value;
+
+            // 保存用户信息
+            var profile = {
+                name: name || '同学',
+                country: country,
+                departureDate: date || '',
+                monthlyBudget: parseInt(budget) || 0,
+                setupAt: new Date().toISOString()
+            };
+            localStorage.setItem('user_profile', JSON.stringify(profile));
+
+            // 同步国家选择
+            localStorage.setItem('selected_country', country);
+
+            // 保存出发日期到倒计时
+            if (date) {
+                var cd = JSON.parse(localStorage.getItem('countdown_data') || 'null');
+                if (!cd) {
+                    cd = { departure_date: date, destination: '', tasks: [] };
+                } else {
+                    cd.departure_date = date;
+                }
+                var c = COUNTRIES.find(function(x) { return x.id === country; });
+                if (c) cd.destination = c.name + (c.timezone ? ' (' + c.timezone.city + ')' : '');
+                localStorage.setItem('countdown_data', JSON.stringify(cd));
+            }
+
+            // 保存预算到记账本
+            if (budget && parseInt(budget) > 0) {
+                var ledger = JSON.parse(localStorage.getItem('ledger_data') || '{"records":[],"settings":{"monthly_budget_cny":3000,"default_currency":"KZT"}}');
+                ledger.settings.monthly_budget_cny = parseInt(budget);
+                var c = COUNTRIES.find(function(x) { return x.id === country; });
+                if (c) ledger.settings.default_currency = c.currency.code;
+                localStorage.setItem('ledger_data', JSON.stringify(ledger));
+            }
+
+            // 跳转主页
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
