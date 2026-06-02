@@ -58,6 +58,28 @@ body {
     overflow-wrap: break-word;
 }
 
+/* ===== 首页 Hero 装饰 ===== */
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(231,111,81,0.05) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: -20px;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, rgba(244,162,97,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
 /* --- Smooth page transitions --- */
 .tool-page, .select-hero {
     animation: fadeInUp 0.4s ease-out;

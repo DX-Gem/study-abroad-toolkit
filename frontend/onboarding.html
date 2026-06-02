@@ -5,9 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>欢迎 — 留学工具箱</title>
     <link rel="stylesheet" href="styles.css">
-    <meta name="theme-color" content="#ff6b35">
+    <meta name="theme-color" content="#E76F51">
     <style>
-        body { background: linear-gradient(180deg, #fef9f5 0%, #faf8f5 100%); }
+        body {
+            background: linear-gradient(180deg, #FFF5F0 0%, #FFFAF7 40%, #FFF0E8 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* 背景装饰花纹 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -80px; right: -60px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(231,111,81,0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none; z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 10%; left: -40px;
+            width: 160px; height: 160px;
+            background: radial-gradient(circle, rgba(244,162,97,0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none; z-index: 0;
+        }
         .onboard-container {
             min-height: 100vh;
             display: flex;
@@ -15,35 +38,73 @@
             padding: 0 20px;
             max-width: 420px;
             margin: 0 auto;
+            position: relative; z-index: 1;
         }
         .onboard-hero {
             text-align: center;
-            padding: 48px 20px 32px;
+            padding: 56px 20px 36px;
+            position: relative;
+        }
+        /* Logo 光环 */
+        .onboard-hero .logo-wrap {
+            display: inline-block;
+            position: relative;
+            margin-bottom: 16px;
         }
         .onboard-hero .logo {
             font-size: 3.5rem;
             display: block;
-            margin-bottom: 12px;
-            animation: scaleIn 0.5s ease-out;
+            position: relative; z-index: 1;
+            animation: scaleIn 0.6s ease-out;
         }
+        .onboard-hero .logo-ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            border: 2px dashed rgba(231,111,81,0.2);
+            animation: spin 20s linear infinite;
+        }
+        @keyframes spin { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
         .onboard-hero h1 {
             font-size: 1.5rem;
             font-weight: 800;
-            color: var(--text);
+            background: linear-gradient(135deg, #E76F51, #F4A261);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2px;
         }
         .onboard-hero p {
             font-size: 0.875rem;
             color: var(--text-muted);
-            margin-top: 4px;
+        }
+        /* 装饰分隔线 */
+        .section-divider {
+            display: flex; align-items: center; gap: 10px;
+            margin: 8px 0 16px;
+        }
+        .section-divider::before, .section-divider::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+        .section-divider span {
+            font-size: 0.75rem; color: var(--text-muted);
         }
         .onboard-card {
             background: var(--card-bg-solid);
             border-radius: var(--radius-lg);
             padding: 24px 20px;
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow);
             border: 1px solid var(--border-light);
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+            position: relative;
+            border-left: 4px solid var(--primary);
+            transition: all var(--transition);
         }
+        .onboard-card:nth-child(2) { border-left-color: var(--accent); }
+        .onboard-card:nth-child(3) { border-left-color: var(--accent-dark); }
         .onboard-card h2 {
             font-size: 1.125rem;
             font-weight: 700;
@@ -108,7 +169,10 @@
 <body>
     <div class="onboard-container">
         <div class="onboard-hero">
-            <span class="logo">🧰</span>
+            <div class="logo-wrap">
+                <div class="logo-ring"></div>
+                <span class="logo">🧰</span>
+            </div>
             <h1>留学工具箱</h1>
             <p>填写基本信息，为你定制专属工具</p>
         </div>
