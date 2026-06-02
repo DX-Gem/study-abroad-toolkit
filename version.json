@@ -1,8 +1,8 @@
 {
-  "versionCode": 13,
-  "versionName": "v2.5",
+  "versionCode": 14,
+  "versionName": "v2.6",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "👤 用户引导页 · 填写姓名/国家/日期/预算 · 首页个性化问候 · 自动同步倒计时+记账设置",
+  "changelog": "👤 个人信息页 · 切换目的地移到「我的」· 头像+留学概况 · Tab栏精简5项 · 首页更简洁",
   "forceUpdate": false
 }
