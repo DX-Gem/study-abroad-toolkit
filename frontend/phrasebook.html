@@ -346,12 +346,19 @@
                 html += `<div class="category-header">${cat.name} (${ordered.length})</div>`;
                 ordered.forEach(p => {
                     const isFav = favorites.includes(p.id);
+                    // 动态语言标签：根据所选国家生成
+                    const country = getSelectedCountry();
+                    const langTags = (country && country.languages)
+                        ? country.languages.map(l => `<span class="lang-tag">${ALL_LANGS.find(a => a.code === l.code)?.flag || '🏳️'} ${l.name.slice(0,2)}</span>`).join('')
+                        : '<span class="lang-tag">🇷🇺 俄</span><span class="lang-tag">🇰🇿 哈</span>';
+                    // 第二行外文文本：只在和第一行不同时显示
+                    const secondLine = p.kk !== p.ru ? `<div class="foreign-text" style="font-size:0.9375rem;font-weight:600;">${p.kk}</div>` : '';
                     html += `<div class="phrase-card" id="phrase-${p.id}">
-                        <span class="lang-tag">🇷🇺 俄</span><span class="lang-tag">🇰🇿 哈</span>
+                        ${langTags}
                         <button class="fav-btn ${isFav ? 'favorited' : ''}" onclick="toggleFav('${p.id}')">${isFav ? '⭐' : '☆'}</button>
                         <button class="speak-btn" onclick="speakPhrase('${p.id}')">🔊</button>
                         <div class="foreign-text">${p.ru}</div>
-                        <div class="foreign-text" style="font-size:0.9375rem;font-weight:600;">${p.kk}</div>
+                        ${secondLine}
                         <div class="pron">📖 ${p.pronunciation}</div>
                         <div class="meaning">🇨🇳 ${p.zh}</div>
                         <div class="context">💡 ${p.context}</div>

@@ -24,10 +24,10 @@
 
         <div class="form-group">
             <label for="fromCurrency">从</label>
-            <select id="fromCurrency">
-                <option value="CNY" selected>🇨🇳 CNY — 人民币</option>
-            </select>
+            <select id="fromCurrency"></select>
         </div>
+
+        <button class="swap-btn" onclick="swapCurrencies()" style="display:block;margin:0 auto 8px;width:40px;height:40px;border-radius:50%;border:2px solid var(--border);background:var(--card-bg);font-size:1.25rem;cursor:pointer;" title="交换货币">⇄</button>
 
         <div class="form-group">
             <label for="toCurrency">到</label>
@@ -76,21 +76,38 @@
         let currentRates = {};
         let usdRates = {};
 
-        // 根据已选国家设置默认货币，并动态生成货币列表
+        // 双向下拉框：从→到，任意货币互转
         (function initCurrency() {
-            const select = document.getElementById('toCurrency');
+            const fromSelect = document.getElementById('fromCurrency');
+            const toSelect = document.getElementById('toCurrency');
             const seen = new Set();
+
+            // 收集所有可用货币
+            const allCurrencies = [];
             COUNTRIES.forEach(c => {
                 if (!seen.has(c.currency.code)) {
                     seen.add(c.currency.code);
-                    const opt = document.createElement('option');
-                    opt.value = c.currency.code;
-                    opt.textContent = `${c.flag} ${c.currency.code} — ${c.currency.name}`;
-                    select.appendChild(opt);
+                    allCurrencies.push(c);
                 }
             });
+
+            // 填充两个下拉框
+            allCurrencies.forEach(c => {
+                const optText = `${c.flag} ${c.currency.code} — ${c.currency.name}`;
+                const opt1 = document.createElement('option');
+                opt1.value = c.currency.code;
+                opt1.textContent = optText;
+                fromSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = c.currency.code;
+                opt2.textContent = optText;
+                toSelect.appendChild(opt2);
+            });
+
             const country = getSelectedCountry();
-            if (country) select.value = country.currency.code;
+            fromSelect.value = 'CNY';
+            toSelect.value = country ? country.currency.code : 'USD';
         })();
 
         // 页面加载时获取汇率（直连 exchangerate-api.com）
@@ -158,6 +175,16 @@
                 `更新于 ${data.updated || '最近'}`;
         }
 
+        // 交换 from 和 to 货币
+        function swapCurrencies() {
+            const from = document.getElementById('fromCurrency');
+            const to = document.getElementById('toCurrency');
+            const tmp = from.value;
+            from.value = to.value;
+            to.value = tmp;
+            convertCurrency();
+        }
+
         // 前端直接换算（无需后端）
         function convertCurrency() {
             const amount = parseFloat(document.getElementById('amount').value) || 100;
@@ -175,7 +202,9 @@
             const rate = +(usdRates[to] / usdRates[from]).toFixed(6);
 
             const currencySymbols = {
-                CNY: '¥', KZT: '₸', RUB: '₽', USD: '$', EUR: '€'
+                CNY: '¥', KZT: '₸', RUB: '₽', USD: '$', EUR: '€',
+                AZN: '₼', GBP: '£', JPY: '¥', KRW: '₩',
+                CAD: 'C$', AUD: 'A$', SGD: 'S$', MYR: 'RM'
             };
 
             document.getElementById('resultCard').style.display = 'block';
@@ -189,33 +218,42 @@
         }
 
         function updateCustomCompare(from, to, amount, officialRate) {
-            if (from !== 'CNY' || to !== 'KZT') {
-                document.getElementById('customResult').textContent =
-                    '自定义汇率对比目前只支持 CNY → KZT';
-                return;
-            }
+            const labelEl = document.querySelector('label[for="customRate"]');
+            if (labelEl) labelEl.textContent = `1 ${from} = ? ${to}（自定义）`;
             const customRate = parseFloat(document.getElementById('customRate').value) || 0;
             if (customRate <= 0) return;
 
             const officialResult = amount * officialRate;
             const customResult = amount * customRate;
             const diff = customResult - officialResult;
-            const pct = ((diff / officialResult) * 100).toFixed(1);
+            const pct = officialResult > 0 ? ((diff / officialResult) * 100).toFixed(1) : 0;
 
             const emoji = diff > 0 ? '🟢' : diff < 0 ? '🔴' : '⚪';
             document.getElementById('customResult').innerHTML = `
-                官方：<strong>${officialResult.toFixed(2)} ₸</strong><br>
-                自定义：<strong>${customResult.toFixed(2)} ₸</strong><br>
-                差额：${emoji} ${diff > 0 ? '+' : ''}${diff.toFixed(2)} ₸ (${pct}%)
+                官方：<strong>${officialResult.toFixed(2)} ${to}</strong><br>
+                自定义：<strong>${customResult.toFixed(2)} ${to}</strong><br>
+                差额：${emoji} ${diff > 0 ? '+' : ''}${diff.toFixed(2)} ${to} (${pct}%)
             `;
         }
 
         // 自定义汇率输入时实时更新
+        // 切换货币时更新自定义汇率标签
+        ['fromCurrency', 'toCurrency'].forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                const amount = document.getElementById('amount').value || 100;
+                const from = document.getElementById('fromCurrency').value;
+                const to = document.getElementById('toCurrency').value;
+                const officialRate = (usdRates[from] && usdRates[to]) ? +(usdRates[to] / usdRates[from]).toFixed(6) : 0;
+                updateCustomCompare(from, to, amount, officialRate);
+            });
+        });
+
         document.getElementById('customRate').addEventListener('input', () => {
             const amount = document.getElementById('amount').value || 100;
             const from = document.getElementById('fromCurrency').value;
             const to = document.getElementById('toCurrency').value;
-            const officialRate = currentRates[to] || 0;
+            // 计算 from→to 的汇率
+            const officialRate = (usdRates[from] && usdRates[to]) ? +(usdRates[to] / usdRates[from]).toFixed(6) : 0;
             updateCustomCompare(from, to, amount, officialRate);
         });
 
