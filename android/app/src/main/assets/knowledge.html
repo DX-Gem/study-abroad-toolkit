@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>常用知识 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff6b35">
+    <style>
+        .knowledge-card {
+            background: var(--card-bg-solid);
+            border-radius: var(--radius);
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+            animation: fadeInUp 0.3s ease-out;
+        }
+        .knowledge-card h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .knowledge-card .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .knowledge-card .info-row:last-child { border-bottom: none; }
+        .knowledge-card .info-label { color: var(--text-muted); flex-shrink: 0; }
+        .knowledge-card .info-value { text-align: right; font-weight: 500; color: var(--text); }
+        .knowledge-card .note {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            font-size: 0.8125rem;
+            color: var(--primary-dark);
+            line-height: 1.5;
+        }
+        .knowledge-card .note::before { content: '💡 '; }
+        .emergency-numbers {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .emergency-badge {
+            flex: 1;
+            text-align: center;
+            padding: 10px 6px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        .emergency-police { background: #dbeafe; color: #1e40af; }
+        .emergency-ambulance { background: #fce7f3; color: #9d174d; }
+        .emergency-fire { background: #fee2e2; color: #991b1b; }
+        .emergency-badge .num { font-size: 1.5rem; display: block; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>📚 留学工具箱</h1></div>
+    <main class="tool-page" style="padding-bottom:80px;">
+        <h1>📚 常用知识</h1>
+
+        <div id="knowledgeContainer">
+            <div class="empty-state"><p>加载中...</p></div>
+        </div>
+    </main>
+
+    <nav class="tab-bar">
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🌐<span>翻译</span></a>
+        <a href="ledger.html" class="tab-item">💰<span>记账</span></a>
+        <a href="timezone.html" class="tab-item">🕐<span>时区</span></a>
+        <a href="knowledge.html" class="tab-item active">📚<span>知识</span></a>
+    </nav>
+
+    <script src="data/country-data.js"></script>
+    <script src="data/knowledge.js"></script>
+    <script>
+        function renderKnowledge() {
+            const k = getKnowledge();
+            if (!k) return;
+
+            const container = document.getElementById('knowledgeContainer');
+            const country = getSelectedCountry();
+
+            let html = '';
+
+            // 紧急电话
+            html += `<div class="knowledge-card">
+                <h3>🚨 紧急电话</h3>
+                <div class="emergency-numbers">
+                    <div class="emergency-badge emergency-police"><span class="num">${k.emergency.police}</span>警察</div>
+                    <div class="emergency-badge emergency-ambulance"><span class="num">${k.emergency.ambulance}</span>急救</div>
+                    <div class="emergency-badge emergency-fire"><span class="num">${k.emergency.fire}</span>火警</div>
+                </div>
+                <div class="note">${k.emergency.note}</div>
+            </div>`;
+
+            // 用电
+            html += `<div class="knowledge-card">
+                <h3>⚡ 用电规格</h3>
+                <div class="info-row"><span class="info-label">电压</span><span class="info-value">${k.electricity.voltage}</span></div>
+                <div class="info-row"><span class="info-label">频率</span><span class="info-value">${k.electricity.frequency}</span></div>
+                <div class="info-row"><span class="info-label">插头</span><span class="info-value">${k.electricity.plug}</span></div>
+                <div class="note">${k.electricity.note}</div>
+            </div>`;
+
+            // 货币与支付
+            html += `<div class="knowledge-card">
+                <h3>💳 货币与支付</h3>
+                <div class="info-row"><span class="info-label">现金</span><span class="info-value">${k.money.cash}</span></div>
+                <div class="info-row"><span class="info-label">银行卡</span><span class="info-value">${k.money.card}</span></div>
+                <div class="info-row"><span class="info-label">常用App</span><span class="info-value">${k.money.apps}</span></div>
+                <div class="note">${k.money.note}</div>
+            </div>`;
+
+            // 小费
+            html += `<div class="knowledge-card">
+                <h3>💰 小费文化</h3>
+                <div class="info-row"><span class="info-label">餐厅</span><span class="info-value">${k.tipping.restaurant}</span></div>
+                <div class="info-row"><span class="info-label">出租车</span><span class="info-value">${k.tipping.taxi}</span></div>
+                <div class="info-row"><span class="info-label">酒店</span><span class="info-value">${k.tipping.hotel}</span></div>
+                <div class="note">${k.tipping.note}</div>
+            </div>`;
+
+            // 必备 App
+            html += `<div class="knowledge-card">
+                <h3>📱 必备App</h3>
+                <p style="font-size:0.875rem;line-height:1.6;">${k.apps}</p>
+            </div>`;
+
+            // 文化习俗
+            html += `<div class="knowledge-card">
+                <h3>🎭 文化习俗与禁忌</h3>
+                <p style="font-size:0.875rem;line-height:1.6;">${k.customs}</p>
+            </div>`;
+
+            // 交通
+            html += `<div class="knowledge-card">
+                <h3>🚌 交通出行</h3>
+                <p style="font-size:0.875rem;line-height:1.6;">${k.transport}</p>
+            </div>`;
+
+            // 签证
+            html += `<div class="knowledge-card">
+                <h3>🛂 签证与居留</h3>
+                <p style="font-size:0.875rem;line-height:1.6;">${k.visa}</p>
+            </div>`;
+
+            // 气候
+            html += `<div class="knowledge-card">
+                <h3>🌡 气候天气</h3>
+                <p style="font-size:0.875rem;line-height:1.6;">${k.climate}</p>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        renderKnowledge();
+    </script>
+    <script src="update-checker.js"></script>
+</body>
+</html>

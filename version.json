@@ -1,8 +1,8 @@
 {
-  "versionCode": 11,
-  "versionName": "v2.3",
+  "versionCode": 12,
+  "versionName": "v2.4",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "🌐 应急翻译升级 · 10语双向互译 · 输入/输出语言自由选择 · UI全面美化",
+  "changelog": "📚 常用知识功能 · 13国紧急电话/用电/小费/习俗/签证/交通/气候 · 按所选国家自动切换",
   "forceUpdate": false
 }
