@@ -1,0 +1,156 @@
+{
+  "categories": [
+    {
+      "id": "essential_ko",
+      "name": "📋 韩语应急短语",
+      "icon": "📋",
+      "phrases": [
+        {
+          "id": "ko_hello",
+          "ru": "안녕하세요",
+          "kk": "안녕하세요",
+          "pronunciation": "安宁哈塞哟",
+          "zh": "你好",
+          "context": "通用问候",
+          "tags": [
+            "问候"
+          ]
+        },
+        {
+          "id": "ko_thanks",
+          "ru": "감사합니다",
+          "kk": "감사합니다",
+          "pronunciation": "卡姆萨哈米达",
+          "zh": "谢谢",
+          "context": "道谢",
+          "tags": [
+            "道谢"
+          ]
+        },
+        {
+          "id": "ko_please",
+          "ru": "부탁합니다",
+          "kk": "부탁합니다",
+          "pronunciation": "普塔卡米达",
+          "zh": "请 / 拜托",
+          "context": "请求",
+          "tags": [
+            "礼貌"
+          ]
+        },
+        {
+          "id": "ko_help",
+          "ru": "살려주세요!",
+          "kk": "살려주세요!",
+          "pronunciation": "萨里奥 组塞哟",
+          "zh": "救命！",
+          "context": "紧急求助",
+          "tags": [
+            "紧急",
+            "救命"
+          ]
+        },
+        {
+          "id": "ko_where",
+          "ru": "... 어디예요?",
+          "kk": "... 어디예요?",
+          "pronunciation": "... 哦滴耶哟",
+          "zh": "...在哪？",
+          "context": "问路",
+          "tags": [
+            "问路"
+          ]
+        },
+        {
+          "id": "ko_how_much",
+          "ru": "얼마예요?",
+          "kk": "얼마예요?",
+          "pronunciation": "哦马耶哟",
+          "zh": "多少钱？",
+          "context": "购物",
+          "tags": [
+            "价格"
+          ]
+        },
+        {
+          "id": "ko_doctor",
+          "ru": "의사가 필요해요",
+          "kk": "의사가 필요해요",
+          "pronunciation": "依萨嘎 皮留嘿哟",
+          "zh": "我需要医生",
+          "context": "医疗",
+          "tags": [
+            "医疗"
+          ]
+        },
+        {
+          "id": "ko_police",
+          "ru": "경찰 불러주세요!",
+          "kk": "경찰 불러주세요!",
+          "pronunciation": "gyong查尔 布鲁组塞哟",
+          "zh": "叫警察！",
+          "context": "报警",
+          "tags": [
+            "紧急",
+            "报警"
+          ]
+        },
+        {
+          "id": "ko_water",
+          "ru": "물 주세요",
+          "kk": "물 주세요",
+          "pronunciation": "木尔 组塞哟",
+          "zh": "请给我水",
+          "context": "餐厅",
+          "tags": [
+            "饮品"
+          ]
+        },
+        {
+          "id": "ko_bill",
+          "ru": "계산해 주세요",
+          "kk": "계산해 주세요",
+          "pronunciation": "给三嘿 组塞哟",
+          "zh": "买单",
+          "context": "结账",
+          "tags": [
+            "结账"
+          ]
+        },
+        {
+          "id": "ko_dont_understand",
+          "ru": "이해 못 해요",
+          "kk": "이해 못 해요",
+          "pronunciation": "依嘿 莫 忒哟",
+          "zh": "我听不懂",
+          "context": "沟通",
+          "tags": [
+            "沟通"
+          ]
+        },
+        {
+          "id": "ko_sorry",
+          "ru": "죄송합니다",
+          "kk": "죄송합니다",
+          "pronunciation": "崔松哈米达",
+          "zh": "对不起",
+          "context": "道歉",
+          "tags": [
+            "道歉"
+          ]
+        },
+        {
+          "id": "ko_goodbye",
+          "ru": "안녕히 계세요",
+          "kk": "안녕히 계세요",
+          "pronunciation": "安宁hi 给塞哟",
+          "zh": "再见",
+          "context": "道别",
+          "tags": [
+            "告别"
+          ]
+        }
+      ]
+    }
+  ]
+}

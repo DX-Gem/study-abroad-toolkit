@@ -216,17 +216,9 @@
 
         <div class="translate-area">
             <div class="lang-selector">
-                <select id="fromLang">
-                    <option value="zh">🇨🇳 中文</option>
-                    <option value="ru">🇷🇺 俄语</option>
-                    <option value="kk">🇰🇿 哈语</option>
-                </select>
+                <select id="fromLang"><option value="zh">🇨🇳 中文</option></select>
                 <button class="swap-btn" onclick="swapLangs()" title="交换语言">⇄</button>
-                <select id="toLang">
-                    <option value="ru" selected>🇷🇺 俄语</option>
-                    <option value="kk">🇰🇿 哈语</option>
-                    <option value="zh">🇨🇳 中文</option>
-                </select>
+                <select id="toLang"></select>
             </div>
             <textarea id="translateInput" class="translate-input" rows="2" placeholder="输入想说的话..."></textarea>
             <button class="btn btn-primary" onclick="doTranslate()" style="width:auto;padding:10px 24px;">🔄 翻译</button>
@@ -263,23 +255,74 @@
     </nav>
 
     <script src="app.js"></script>
+    <script src="data/country-data.js"></script>
+    <!-- 短语数据根据所选国家动态加载 -->
+    <script id="phrasesScript"></script>
     <script>
         const MYMEMORY_API = 'https://api.mymemory.translated.net/get';
         let phrasesData = null;
         let lastTranslation = '';
         let favorites = JSON.parse(localStorage.getItem('phrase_favs') || '[]');
 
-        const LANG_MAP = { zh: 'zh-CN', ru: 'ru-RU', kk: 'kk-KZ' };
+        // 所有留学国家语言
+        const ALL_LANGS = [
+            { code: 'zh', name: '中文', flag: '🇨🇳', api: 'zh-CN' },
+            { code: 'en', name: '英语', flag: '🇬🇧', api: 'en-GB' },
+            { code: 'ru', name: '俄语', flag: '🇷🇺', api: 'ru-RU' },
+            { code: 'kk', name: '哈语', flag: '🇰🇿', api: 'kk-KZ' },
+            { code: 'az', name: '阿塞拜疆语', flag: '🇦🇿', api: 'az-AZ' },
+            { code: 'ja', name: '日语', flag: '🇯🇵', api: 'ja-JA' },
+            { code: 'ko', name: '韩语', flag: '🇰🇷', api: 'ko-KR' },
+            { code: 'de', name: '德语', flag: '🇩🇪', api: 'de-DE' },
+            { code: 'fr', name: '法语', flag: '🇫🇷', api: 'fr-FR' },
+            { code: 'ms', name: '马来语', flag: '🇲🇾', api: 'ms-MY' },
+        ];
 
-        async function loadPhrases() {
-            try {
-                const res = await fetch('data/phrases.json');
-                phrasesData = await res.json();
-                renderPhrases();
-            } catch (e) {
-                document.getElementById('phraseList').innerHTML =
-                    '<div class="empty-state"><p>短语数据加载失败</p></div>';
+        const LANG_API_MAP = {};
+        ALL_LANGS.forEach(l => { LANG_API_MAP[l.code] = l.api; });
+
+        // 初始化翻译语言下拉框
+        (function initLangSelectors() {
+            const fromSelect = document.getElementById('fromLang');
+            const toSelect = document.getElementById('toLang');
+            const country = getSelectedCountry();
+
+            ALL_LANGS.forEach(l => {
+                const opt = document.createElement('option');
+                opt.value = l.code;
+                opt.textContent = `${l.flag} ${l.name}`;
+                toSelect.appendChild(opt.cloneNode(true));
+            });
+
+            // 默认目标语言 = 已选国家的第一语言
+            if (country && country.languages.length > 0) {
+                toSelect.value = country.languages[0].code;
             }
+        })();
+
+        function loadPhrases() {
+            // 根据所选国家加载对应语言的短语
+            const country = getSelectedCountry();
+            const langCode = (country && country.languages[0]) ? country.languages[0].code : 'ru';
+
+            // 俄语/哈语/阿塞拜疆语 → 完整版；其他 → 精简版
+            const fullLangs = ['ru', 'kk', 'az'];
+            const code = fullLangs.includes(langCode) ? langCode : (['en','ja','ko','de','fr','ms'].includes(langCode) ? langCode : 'en');
+
+            const file = fullLangs.includes(code) ? 'phrases_embed.js' : `phrases_${code}.js`;
+
+            const script = document.getElementById('phrasesScript');
+            script.onload = () => {
+                if (typeof PHRASES_DATA !== 'undefined') {
+                    phrasesData = PHRASES_DATA;
+                    renderPhrases();
+                }
+            };
+            script.onerror = () => {
+                document.getElementById('phraseList').innerHTML =
+                    '<div class="empty-state"><p>短语数据加载失败，请检查网络</p></div>';
+            };
+            script.src = 'data/' + file;
         }
 
         function renderPhrases() {
@@ -329,13 +372,67 @@
             renderPhrases();
         }
 
+        // 统一朗读：Android 原生 TTS + 语音可用性检测
+        function doSpeak(text, lang) {
+            if (window.AndroidTTS) {
+                try {
+                    var result = window.AndroidTTS.speak(text, lang);
+                    if (result) {
+                        try {
+                            var r = JSON.parse(result);
+                            if (r.status === 'SILENT' || r.status === 'MISSING' || r.status === 'UNSUPPORTED') {
+                                if ('speechSynthesis' in window) {
+                                    speakViaWebSpeech(text, lang);
+                                } else {
+                                    showInstallTTS();
+                                }
+                                return;
+                            }
+                        } catch(e) {}
+                    }
+                    return; // TTS OK, 正常播放
+                } catch(e) {}
+            }
+            if ('speechSynthesis' in window) {
+                speakViaWebSpeech(text, lang);
+            }
+        }
+
+        function showInstallTTS() {
+            // 不弹窗，静默标记为无语音（用户可看拼音发音）
+        var ttsUnavailable = false;
+
+        function showInstallTTS() {
+            ttsUnavailable = true;
+            // 更新所有朗读按钮显示
+            var btns = document.querySelectorAll('.speak-btn');
+            btns.forEach(function(b) { b.style.opacity = '0.25'; b.title = '语音包未安装（可看拼音发音）'; });
+        }
+        }
+
+        function speakViaWebSpeech(text, lang) {
+            speechSynthesis.cancel();
+            var utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.75;
+            utterance.volume = 1.0;
+            setTimeout(function() { speechSynthesis.speak(utterance); }, 50);
+        }
+
+        function showTTSMissing(lang) {
+            var langNames = {'ru-RU':'俄语','kk-KZ':'哈语','az-AZ':'阿塞拜疆语','ja-JA':'日语','ko-KR':'韩语','de-DE':'德语','fr-FR':'法语','ms-MY':'马来语','en-GB':'英语','zh-CN':'中文'};
+            var name = langNames[lang] || lang;
+            var msg = '\u{1F50A} ' + name + '语音包未安装\n\n请在应用商店搜索：\n"Google 文字转语音"\n\n安装后去设置→语言和输入法→文字转语音→选择 Google TTS';
+            if (confirm(msg)) {
+                // 尝试打开 Google TTS 安装页
+                window.open('https://play.google.com/store/apps/details?id=com.google.android.tts', '_blank');
+            }
+        }
+
         function speakPhrase(id) {
             const phrase = findPhrase(id);
             if (!phrase) return;
-            const utterance = new SpeechSynthesisUtterance(phrase.ru);
-            utterance.lang = 'ru-RU';
-            utterance.rate = 0.75;
-            speechSynthesis.speak(utterance);
+            doSpeak(phrase.ru, 'ru-RU');
         }
 
         function findPhrase(id) {
@@ -352,7 +449,7 @@
             if (!text) return;
             const fromLang = document.getElementById('fromLang').value;
             const toLang = document.getElementById('toLang').value;
-            const langpair = `${LANG_MAP[fromLang]}|${LANG_MAP[toLang]}`;
+            const langpair = `${LANG_API_MAP[fromLang] || fromLang}|${LANG_API_MAP[toLang] || toLang}`;
             try {
                 const res = await fetch(`${MYMEMORY_API}?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`);
                 const data = await res.json();
@@ -371,11 +468,7 @@
         function speakResult() {
             if (!lastTranslation) return;
             const toLang = document.getElementById('toLang').value;
-            const langMap = { ru: 'ru-RU', kk: 'kk-KZ', zh: 'zh-CN' };
-            const utterance = new SpeechSynthesisUtterance(lastTranslation);
-            utterance.lang = langMap[toLang] || 'ru-RU';
-            utterance.rate = 0.75;
-            speechSynthesis.speak(utterance);
+            doSpeak(lastTranslation, LANG_API_MAP[toLang] || 'ru-RU');
         }
 
         function copyResult() {
@@ -413,15 +506,12 @@
 
         function showEmergency() {
             document.getElementById('emergencyModal').classList.add('show');
-            const utterance = new SpeechSynthesisUtterance('Помогите! Помогите!');
-            utterance.lang = 'ru-RU';
-            utterance.rate = 0.7;
-            speechSynthesis.speak(utterance);
+            doSpeak('Помогите! Помогите!', 'ru-RU');
         }
 
         function hideEmergency() {
             document.getElementById('emergencyModal').classList.remove('show');
-            speechSynthesis.cancel();
+            if ('speechSynthesis' in window) speechSynthesis.cancel();
         }
 
         loadPhrases();

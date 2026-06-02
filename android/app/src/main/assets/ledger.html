@@ -130,13 +130,8 @@
 
         <div class="quick-add">
             <div style="display:flex;gap:8px;margin-bottom:10px;">
-                <select id="addCurrency" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.9375rem;background:var(--card-bg);">
-                    <option value="KZT">₸ 坚戈 (KZT)</option>
-                    <option value="RUB">₽ 卢布 (RUB)</option>
-                    <option value="CNY">¥ 人民币 (CNY)</option>
-                    <option value="USD">$ 美元 (USD)</option>
-                </select>
-                <input type="number" id="addAmount" placeholder="金额" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.9375rem;">
+                <select id="addCurrency" style="flex:2;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.9375rem;background:var(--card-bg);"></select>
+                <input type="number" id="addAmount" placeholder="金额" inputmode="decimal" style="flex:1;max-width:120px;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.9375rem;">
             </div>
             <div style="display:flex;gap:8px;margin-bottom:10px;">
                 <select id="addCategory" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:0.9375rem;background:var(--card-bg);">
@@ -172,8 +167,26 @@
         <a href="countdown.html" class="tab-item">✅<span>待办</span></a>
     </nav>
 
+    <script src="data/country-data.js"></script>
     <script src="app.js"></script>
     <script>
+        // 动态生成币种列表，默认选已选国家的货币
+        (function initCurrencies() {
+            const select = document.getElementById('addCurrency');
+            const seen = new Set();
+            COUNTRIES.forEach(c => {
+                if (!seen.has(c.currency.code)) {
+                    seen.add(c.currency.code);
+                    const opt = document.createElement('option');
+                    opt.value = c.currency.code;
+                    opt.textContent = `${c.flag} ${c.currency.code} — ${c.currency.name}`;
+                    select.appendChild(opt);
+                }
+            });
+            const country = getSelectedCountry();
+            if (country) select.value = country.currency.code;
+        })();
+
         const EXCHANGE_API = 'https://api.exchangerate-api.com/v4/latest/USD';
         const CAT_EMOJI = { food: '🍜', housing: '🏠', transport: '🚌', comm: '📱', study: '📚', entertain: '🎮', medical: '🏥', shopping: '🛒', other: '📌' };
         const CAT_NAMES = { food: '饮食', housing: '住宿', transport: '交通', comm: '通讯', study: '学习', entertain: '娱乐', medical: '医疗', shopping: '购物', other: '其他' };

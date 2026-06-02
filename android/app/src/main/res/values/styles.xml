@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 启动画面主题：全屏无标题栏 -->
+    <style name="Theme.Splash" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <!-- 主应用主题 -->
     <style name="Theme.Toolkit" parent="android:Theme.Material.NoActionBar">
         <item name="android:statusBarColor">#ea580c</item>
         <item name="android:navigationBarColor">#ea580c</item>

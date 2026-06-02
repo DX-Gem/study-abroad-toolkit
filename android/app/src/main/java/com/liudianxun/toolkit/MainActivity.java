@@ -9,9 +9,12 @@ import android.webkit.WebChromeClient;
 import android.view.WindowManager;
 import android.os.Build;
 import android.view.View;
+import android.speech.tts.TextToSpeech;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,27 +37,29 @@ public class MainActivity extends Activity {
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
-        settings.setAllowFileAccessFromFileURLs(false);
-        settings.setAllowUniversalAccessFromFileURLs(false);
+        // 允许 file:// 下的 fetch 加载本地 JSON 和跨域 API
+        settings.setAllowFileAccessFromFileURLs(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
         settings.setUseWideViewPort(true);
         settings.setLoadWithOverviewMode(true);
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
         settings.setMediaPlaybackRequiresUserGesture(false);
+        // 修复 vivo 等国产手机文字缩放导致的排版问题
+        settings.setTextZoom(100);
+        settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // 外部链接用系统浏览器打开，内部文件用 WebView 加载
                 if (url.startsWith("file://") || url.startsWith("about:")) {
                     return false;
                 }
                 if (url.startsWith("https://api.exchangerate-api.com") ||
                     url.startsWith("https://api.mymemory.translated.net")) {
-                    return false; // API 请求留在 WebView 内
+                    return false;
                 }
-                // 其他外链用系统浏览器
                 try {
                     android.content.Intent intent = new android.content.Intent(
                         android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url));
@@ -66,8 +71,55 @@ public class MainActivity extends Activity {
 
         webView.setWebChromeClient(new WebChromeClient());
 
+        // 原生 TTS 引擎（Web Speech API 在 WebView 中不稳定，提供原生兜底）
+        tts = new TextToSpeech(this, null);
+        // 初始化 TTS（兼容 vivo 讯飞引擎）
+        tts.setLanguage(Locale.CHINESE);
+
+        webView.addJavascriptInterface(new Object() {
+            @android.webkit.JavascriptInterface
+            public String speak(String text, String lang) {
+                try {
+                    Locale locale = langToLocale(lang);
+                    int result = tts.setLanguage(locale);
+                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        return "{\"status\":\"UNSUPPORTED\"}";
+                    }
+                    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "toolkit_tts");
+                    return "{\"status\":\"OK\"}";
+                } catch (Exception e) {
+                    return "{\"status\":\"ERROR\"}";
+                }
+            }
+
+            private Locale langToLocale(String lang) {
+                switch (lang) {
+                    case "zh-CN": case "zh": return Locale.CHINESE;
+                    case "en-GB": case "en": return Locale.UK;
+                    case "ru-RU": case "ru": return new Locale("ru", "RU");
+                    case "kk-KZ": case "kk": return new Locale("kk", "KZ");
+                    case "az-AZ": case "az": return new Locale("az", "AZ");
+                    case "ja-JA": case "ja": return Locale.JAPANESE;
+                    case "ko-KR": case "ko": return Locale.KOREAN;
+                    case "de-DE": case "de": return Locale.GERMAN;
+                    case "fr-FR": case "fr": return Locale.FRENCH;
+                    case "ms-MY": case "ms": return new Locale("ms", "MY");
+                    default: return Locale.UK;
+                }
+            }
+        }, "AndroidTTS");
+
         // 加载本地首页
         webView.loadUrl("file:///android_asset/index.html");
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
+        super.onDestroy();
     }
 
     @Override

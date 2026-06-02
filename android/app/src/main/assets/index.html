@@ -11,13 +11,14 @@
 <body>
     <div class="header">
         <h1>🧰 留学工具箱</h1>
-        <p>中亚留学生的一站式实用工具</p>
+        <p id="headerSubtitle">一站式留学实用工具</p>
     </div>
 
     <div class="hero">
-        <span class="hero-icon">🎓</span>
-        <h2>留学准备，一站搞定</h2>
-        <p>汇率、花费、时区、行李 — 四个工具，帮你轻松出发</p>
+        <span class="hero-icon" id="heroFlag">🎓</span>
+        <h2 id="heroTitle">留学准备，一站搞定</h2>
+        <p id="heroDesc">选择你的留学目的地，工具自动适配当地货币、时区、语言</p>
+        <a href="select.html" style="display:inline-block;margin-top:12px;padding:8px 20px;background:var(--primary);color:#fff;border-radius:20px;text-decoration:none;font-weight:600;font-size:0.875rem;">🔄 切换目的地</a>
     </div>
 
     <div class="tools-grid">
@@ -71,6 +72,24 @@
         📲 添加到手机桌面，像 App 一样使用
         <button onclick="installPWA()">安装</button>
     </div>
+    <script src="data/country-data.js"></script>
+    <script>
+        // 首页根据已选国家展示个性化内容
+        (function() {
+            const country = getSelectedCountry();
+            if (country) {
+                document.getElementById('heroFlag').textContent = country.flag;
+                document.getElementById('heroTitle').textContent = '🇨🇳 → ' + country.flag + ' ' + country.name;
+                document.getElementById('heroDesc').textContent =
+                    `货币：${country.currency.name} | 时区：${country.timezone.utc} | 月生活费约 ${country.cost.monthly}`;
+                document.getElementById('headerSubtitle').textContent =
+                    country.name + '留学生一站式实用工具';
+            } else {
+                // 没选过 → 跳转选择页
+                window.location.href = 'select.html';
+            }
+        })();
+    </script>
     <script src="app.js"></script>
 </body>
 </html>

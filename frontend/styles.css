@@ -35,6 +35,13 @@ body {
     line-height: 1.6;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    /* 修复 vivo/OPPO 等国产手机 WebView 文字缩放问题 */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    word-break: break-all;
+    overflow-wrap: break-word;
 }
 
 /* --- Header --- */
@@ -347,24 +354,26 @@ body {
 }
 
 .currency-item {
-    background: var(--primary-ghost);
+    background: var(--card-bg);
     border-radius: var(--radius-sm);
-    padding: 14px 10px;
+    padding: 18px 12px;
     text-align: center;
-    border: 1px solid var(--border-light);
+    border: 2px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
 }
 
 .currency-item .currency-code {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 500;
+    font-size: 0.9375rem;
+    color: var(--text);
+    font-weight: 700;
 }
 
 .currency-item .currency-rate {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-top: 4px;
-    color: var(--text);
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-top: 6px;
+    color: var(--primary-dark);
+}
 }
 
 /* --- Checkbox List (packing) --- */

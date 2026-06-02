@@ -1,0 +1,168 @@
+{
+  "categories": [
+    {
+      "id": "essential_ja",
+      "name": "📋 日语应急短语",
+      "icon": "📋",
+      "phrases": [
+        {
+          "id": "ja_hello",
+          "ru": "こんにちは",
+          "kk": "こんにちは",
+          "pronunciation": "空尼奇瓦",
+          "zh": "你好",
+          "context": "通用问候",
+          "tags": [
+            "问候"
+          ]
+        },
+        {
+          "id": "ja_thanks",
+          "ru": "ありがとうございます",
+          "kk": "ありがとうございます",
+          "pronunciation": "阿里嘎多 够咋依马斯",
+          "zh": "谢谢",
+          "context": "道谢",
+          "tags": [
+            "道谢"
+          ]
+        },
+        {
+          "id": "ja_please",
+          "ru": "お願いします",
+          "kk": "お願いします",
+          "pronunciation": "哦内盖 西马斯",
+          "zh": "请 / 拜托了",
+          "context": "请求",
+          "tags": [
+            "礼貌"
+          ]
+        },
+        {
+          "id": "ja_help",
+          "ru": "助けて！",
+          "kk": "助けて！",
+          "pronunciation": "塔苏克忒",
+          "zh": "救命！",
+          "context": "紧急求助",
+          "tags": [
+            "紧急",
+            "救命"
+          ]
+        },
+        {
+          "id": "ja_where",
+          "ru": "...はどこですか？",
+          "kk": "...はどこですか？",
+          "pronunciation": "...瓦 多科 得斯嘎",
+          "zh": "...在哪？",
+          "context": "问路",
+          "tags": [
+            "问路"
+          ]
+        },
+        {
+          "id": "ja_how_much",
+          "ru": "いくらですか？",
+          "kk": "いくらですか？",
+          "pronunciation": "依库拉 得斯嘎",
+          "zh": "多少钱？",
+          "context": "购物",
+          "tags": [
+            "价格"
+          ]
+        },
+        {
+          "id": "ja_doctor",
+          "ru": "医者を呼んでください",
+          "kk": "医者を呼んでください",
+          "pronunciation": "依夏 哦 永得 库达赛",
+          "zh": "请叫医生",
+          "context": "医疗",
+          "tags": [
+            "医疗"
+          ]
+        },
+        {
+          "id": "ja_police",
+          "ru": "警察を呼んで！",
+          "kk": "警察を呼んで！",
+          "pronunciation": "凯撒茨 哦 永得",
+          "zh": "叫警察！",
+          "context": "报警",
+          "tags": [
+            "紧急",
+            "报警"
+          ]
+        },
+        {
+          "id": "ja_water",
+          "ru": "お水をください",
+          "kk": "お水をください",
+          "pronunciation": "哦米租 哦 库达赛",
+          "zh": "请给我水",
+          "context": "餐厅",
+          "tags": [
+            "饮品"
+          ]
+        },
+        {
+          "id": "ja_bill",
+          "ru": "お会計お願いします",
+          "kk": "お会計お願いします",
+          "pronunciation": "哦凯凯 哦内盖西马斯",
+          "zh": "买单",
+          "context": "结账",
+          "tags": [
+            "结账"
+          ]
+        },
+        {
+          "id": "ja_dont_understand",
+          "ru": "わかりません",
+          "kk": "わかりません",
+          "pronunciation": "瓦卡里马森",
+          "zh": "我不懂",
+          "context": "沟通",
+          "tags": [
+            "沟通"
+          ]
+        },
+        {
+          "id": "ja_sorry",
+          "ru": "すみません",
+          "kk": "すみません",
+          "pronunciation": "苏米马森",
+          "zh": "对不起",
+          "context": "道歉/搭话",
+          "tags": [
+            "道歉"
+          ]
+        },
+        {
+          "id": "ja_goodbye",
+          "ru": "さようなら",
+          "kk": "さようなら",
+          "pronunciation": "撒哟那拉",
+          "zh": "再见",
+          "context": "道别",
+          "tags": [
+            "告别"
+          ]
+        },
+        {
+          "id": "ja_train",
+          "ru": "駅はどこですか？",
+          "kk": "駅はどこですか？",
+          "pronunciation": "诶ki 瓦 多科得斯嘎",
+          "zh": "车站在哪？",
+          "context": "交通",
+          "tags": [
+            "问路",
+            "交通"
+          ]
+        }
+      ]
+    }
+  ]
+}

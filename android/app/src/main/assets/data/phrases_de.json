@@ -1,0 +1,157 @@
+{
+  "categories": [
+    {
+      "id": "essential_de",
+      "name": "📋 德语应急短语",
+      "icon": "📋",
+      "phrases": [
+        {
+          "id": "de_hello",
+          "ru": "Hallo / Guten Tag",
+          "kk": "Hallo / Guten Tag",
+          "pronunciation": "哈喽 / 古腾 塔克",
+          "zh": "你好",
+          "context": "通用问候",
+          "tags": [
+            "问候"
+          ]
+        },
+        {
+          "id": "de_thanks",
+          "ru": "Danke schoen",
+          "kk": "Danke schoen",
+          "pronunciation": "当克 勋",
+          "zh": "非常感谢",
+          "context": "道谢",
+          "tags": [
+            "道谢"
+          ]
+        },
+        {
+          "id": "de_please",
+          "ru": "Bitte",
+          "kk": "Bitte",
+          "pronunciation": "比特",
+          "zh": "请 / 不客气",
+          "context": "请求/应答",
+          "tags": [
+            "礼貌"
+          ]
+        },
+        {
+          "id": "de_help",
+          "ru": "Hilfe!",
+          "kk": "Hilfe!",
+          "pronunciation": "希欧非",
+          "zh": "救命！",
+          "context": "紧急求助",
+          "tags": [
+            "紧急",
+            "救命"
+          ]
+        },
+        {
+          "id": "de_where",
+          "ru": "Wo ist ...?",
+          "kk": "Wo ist ...?",
+          "pronunciation": "沃 伊斯特",
+          "zh": "...在哪？",
+          "context": "问路",
+          "tags": [
+            "问路"
+          ]
+        },
+        {
+          "id": "de_how_much",
+          "ru": "Wie viel kostet das?",
+          "kk": "Wie viel kostet das?",
+          "pronunciation": "维 非欧 科斯特 达斯",
+          "zh": "多少钱？",
+          "context": "购物",
+          "tags": [
+            "价格"
+          ]
+        },
+        {
+          "id": "de_doctor",
+          "ru": "Ich brauche einen Arzt",
+          "kk": "Ich brauche einen Arzt",
+          "pronunciation": "依西 布劳赫 艾嫩 阿茨特",
+          "zh": "我需要医生",
+          "context": "医疗",
+          "tags": [
+            "医疗",
+            "紧急"
+          ]
+        },
+        {
+          "id": "de_police",
+          "ru": "Rufen Sie die Polizei!",
+          "kk": "Rufen Sie die Polizei!",
+          "pronunciation": "鲁fen 贼 滴 珀利菜",
+          "zh": "叫警察！",
+          "context": "报警",
+          "tags": [
+            "紧急",
+            "报警"
+          ]
+        },
+        {
+          "id": "de_water",
+          "ru": "Wasser, bitte",
+          "kk": "Wasser, bitte",
+          "pronunciation": "瓦瑟 比特",
+          "zh": "请给我水",
+          "context": "餐厅",
+          "tags": [
+            "饮品"
+          ]
+        },
+        {
+          "id": "de_bill",
+          "ru": "Die Rechnung, bitte",
+          "kk": "Die Rechnung, bitte",
+          "pronunciation": "滴 赖西弄 比特",
+          "zh": "买单",
+          "context": "结账",
+          "tags": [
+            "结账"
+          ]
+        },
+        {
+          "id": "de_dont_understand",
+          "ru": "Ich verstehe nicht",
+          "kk": "Ich verstehe nicht",
+          "pronunciation": "依西 费尔施特额 尼西特",
+          "zh": "我听不懂",
+          "context": "沟通",
+          "tags": [
+            "沟通"
+          ]
+        },
+        {
+          "id": "de_sorry",
+          "ru": "Entschuldigung",
+          "kk": "Entschuldigung",
+          "pronunciation": "恩特书迪贡",
+          "zh": "对不起",
+          "context": "道歉",
+          "tags": [
+            "道歉"
+          ]
+        },
+        {
+          "id": "de_goodbye",
+          "ru": "Auf Wiedersehen",
+          "kk": "Auf Wiedersehen",
+          "pronunciation": "奥夫 维德贼恩",
+          "zh": "再见",
+          "context": "道别",
+          "tags": [
+            "告别"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -26,22 +26,12 @@
             <label for="fromCurrency">从</label>
             <select id="fromCurrency">
                 <option value="CNY" selected>🇨🇳 CNY — 人民币</option>
-                <option value="KZT">🇰🇿 KZT — 哈萨克斯坦坚戈</option>
-                <option value="RUB">🇷🇺 RUB — 俄罗斯卢布</option>
-                <option value="USD">🇺🇸 USD — 美元</option>
-                <option value="EUR">🇪🇺 EUR — 欧元</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="toCurrency">到</label>
-            <select id="toCurrency">
-                <option value="CNY">🇨🇳 CNY — 人民币</option>
-                <option value="KZT" selected>🇰🇿 KZT — 哈萨克斯坦坚戈</option>
-                <option value="RUB">🇷🇺 RUB — 俄罗斯卢布</option>
-                <option value="USD">🇺🇸 USD — 美元</option>
-                <option value="EUR">🇪🇺 EUR — 欧元</option>
-            </select>
+            <select id="toCurrency"></select>
         </div>
 
         <button class="btn btn-primary" onclick="convertCurrency()">换算</button>
@@ -80,10 +70,28 @@
         <p>数据来源：exchangerate-api.com · 每小时更新 · <strong>仅供参考</strong></p>
     </div>
 
+    <script src="data/country-data.js"></script>
     <script>
         const EXCHANGE_API = 'https://api.exchangerate-api.com/v4/latest/USD';
         let currentRates = {};
         let usdRates = {};
+
+        // 根据已选国家设置默认货币，并动态生成货币列表
+        (function initCurrency() {
+            const select = document.getElementById('toCurrency');
+            const seen = new Set();
+            COUNTRIES.forEach(c => {
+                if (!seen.has(c.currency.code)) {
+                    seen.add(c.currency.code);
+                    const opt = document.createElement('option');
+                    opt.value = c.currency.code;
+                    opt.textContent = `${c.flag} ${c.currency.code} — ${c.currency.name}`;
+                    select.appendChild(opt);
+                }
+            });
+            const country = getSelectedCountry();
+            if (country) select.value = country.currency.code;
+        })();
 
         // 页面加载时获取汇率（直连 exchangerate-api.com）
         async function loadRates() {
@@ -122,21 +130,26 @@
         function renderRatesGrid(data) {
             const grid = document.getElementById('ratesGrid');
             const currencyInfo = {
-                CNY: ['🇨🇳', '人民币'],
-                KZT: ['🇰🇿', '坚戈'],
-                RUB: ['🇷🇺', '卢布'],
-                USD: ['🇺🇸', '美元'],
-                EUR: ['🇪🇺', '欧元'],
+                CNY: '人民币',
+                KZT: '哈萨克斯坦坚戈',
+                AZN: '阿塞拜疆马纳特',
+                RUB: '俄罗斯卢布',
+                USD: '美元',
+                EUR: '欧元',
             };
+            // 只显示支持的货币
+            const showCodes = ['KZT', 'AZN', 'RUB', 'USD', 'EUR'];
 
-            grid.innerHTML = Object.entries(data.rates)
-                .filter(([code]) => code !== 'CNY')
-                .map(([code, rate]) => {
-                    const [flag] = currencyInfo[code] || ['🏳️'];
+            grid.innerHTML = showCodes
+                .filter(code => data.rates[code] != null)
+                .map((code) => {
+                    const rate = data.rates[code];
+                    const name = currencyInfo[code] || code;
                     return `
                         <div class="currency-item">
-                            <div class="currency-code">${flag} ${code}</div>
-                            <div class="currency-rate">${rate.toFixed(4)}</div>
+                            <div class="currency-code">${name}</div>
+                            <div class="currency-rate">${rate.toFixed(2)}</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${code}</div>
                         </div>`;
                 })
                 .join('');

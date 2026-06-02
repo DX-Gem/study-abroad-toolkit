@@ -1,0 +1,157 @@
+{
+  "categories": [
+    {
+      "id": "essential_fr",
+      "name": "📋 法语应急短语",
+      "icon": "📋",
+      "phrases": [
+        {
+          "id": "fr_hello",
+          "ru": "Bonjour / Salut",
+          "kk": "Bonjour / Salut",
+          "pronunciation": "邦如 / 萨吕",
+          "zh": "你好",
+          "context": "通用问候",
+          "tags": [
+            "问候"
+          ]
+        },
+        {
+          "id": "fr_thanks",
+          "ru": "Merci beaucoup",
+          "kk": "Merci beaucoup",
+          "pronunciation": "梅西 博库",
+          "zh": "非常感谢",
+          "context": "道谢",
+          "tags": [
+            "道谢"
+          ]
+        },
+        {
+          "id": "fr_please",
+          "ru": "S'il vous plait",
+          "kk": "S'il vous plait",
+          "pronunciation": "西欧 乌 普莱",
+          "zh": "请",
+          "context": "请求",
+          "tags": [
+            "礼貌"
+          ]
+        },
+        {
+          "id": "fr_help",
+          "ru": "Au secours!",
+          "kk": "Au secours!",
+          "pronunciation": "欧 瑟库",
+          "zh": "救命！",
+          "context": "紧急求助",
+          "tags": [
+            "紧急",
+            "救命"
+          ]
+        },
+        {
+          "id": "fr_where",
+          "ru": "Ou est ...?",
+          "kk": "Ou est ...?",
+          "pronunciation": "乌 埃",
+          "zh": "...在哪？",
+          "context": "问路",
+          "tags": [
+            "问路"
+          ]
+        },
+        {
+          "id": "fr_how_much",
+          "ru": "Combien ca coute?",
+          "kk": "Combien ca coute?",
+          "pronunciation": "宫比安 萨 库特",
+          "zh": "多少钱？",
+          "context": "购物",
+          "tags": [
+            "价格"
+          ]
+        },
+        {
+          "id": "fr_doctor",
+          "ru": "J'ai besoin d'un medecin",
+          "kk": "J'ai besoin d'un medecin",
+          "pronunciation": "热 波兹万 单 梅德桑",
+          "zh": "我需要医生",
+          "context": "医疗",
+          "tags": [
+            "医疗",
+            "紧急"
+          ]
+        },
+        {
+          "id": "fr_police",
+          "ru": "Appelez la police!",
+          "kk": "Appelez la police!",
+          "pronunciation": "阿普莱 拉 珀利斯",
+          "zh": "叫警察！",
+          "context": "报警",
+          "tags": [
+            "紧急",
+            "报警"
+          ]
+        },
+        {
+          "id": "fr_water",
+          "ru": "De l'eau, s'il vous plait",
+          "kk": "De l'eau, s'il vous plait",
+          "pronunciation": "德 洛 西欧乌普莱",
+          "zh": "请给我水",
+          "context": "餐厅",
+          "tags": [
+            "饮品"
+          ]
+        },
+        {
+          "id": "fr_bill",
+          "ru": "L'addition, s'il vous plait",
+          "kk": "L'addition, s'il vous plait",
+          "pronunciation": "拉迪雄 西欧乌普莱",
+          "zh": "买单",
+          "context": "结账",
+          "tags": [
+            "结账"
+          ]
+        },
+        {
+          "id": "fr_dont_understand",
+          "ru": "Je ne comprends pas",
+          "kk": "Je ne comprends pas",
+          "pronunciation": "热 呢 宫pong 帕",
+          "zh": "我听不懂",
+          "context": "沟通",
+          "tags": [
+            "沟通"
+          ]
+        },
+        {
+          "id": "fr_sorry",
+          "ru": "Pardon / Desole",
+          "kk": "Pardon / Desole",
+          "pronunciation": "帕东 / 得祖类",
+          "zh": "对不起",
+          "context": "道歉",
+          "tags": [
+            "道歉"
+          ]
+        },
+        {
+          "id": "fr_goodbye",
+          "ru": "Au revoir",
+          "kk": "Au revoir",
+          "pronunciation": "欧 喝瓦",
+          "zh": "再见",
+          "context": "道别",
+          "tags": [
+            "告别"
+          ]
+        }
+      ]
+    }
+  ]
+}
