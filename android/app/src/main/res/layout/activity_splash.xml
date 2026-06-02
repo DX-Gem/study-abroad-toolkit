@@ -1,36 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splash_bg"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:background="@drawable/splash_bg">
 
-    <TextView
+    <!-- 装饰圆点：右上 -->
+    <View
+        android:layout_width="120dp" android:layout_height="120dp"
+        android:layout_alignParentTop="true" android:layout_alignParentRight="true"
+        android:layout_marginTop="-30dp" android:layout_marginRight="-20dp"
+        android:background="@drawable/splash_dot"
+        android:alpha="0.08" />
+
+    <!-- 装饰圆点：左下 -->
+    <View
+        android:layout_width="80dp" android:layout_height="80dp"
+        android:layout_alignParentBottom="true" android:layout_alignParentLeft="true"
+        android:layout_marginBottom="60dp" android:layout_marginLeft="-20dp"
+        android:background="@drawable/splash_dot"
+        android:alpha="0.06" />
+
+    <!-- 装饰圆点：右下小 -->
+    <View
+        android:layout_width="50dp" android:layout_height="50dp"
+        android:layout_alignParentBottom="true" android:layout_alignParentRight="true"
+        android:layout_marginBottom="120dp" android:layout_marginRight="30dp"
+        android:background="@drawable/splash_dot_small"
+        android:alpha="0.1" />
+
+    <!-- 中心内容 -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="DX-GEM"
-        android:textColor="#ffffff"
-        android:textSize="42sp"
-        android:textStyle="bold"
-        android:letterSpacing="0.15"
-        android:fontFamily="sans-serif-black" />
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:gravity="center">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="🧰 留学工具箱"
-        android:textColor="#ffe0c0"
-        android:textSize="18sp"
-        android:fontFamily="sans-serif-medium" />
+        <!-- 图标 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🧰"
+            android:textSize="56sp"
+            android:layout_marginBottom="16dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="v1.0 · Study Abroad Toolkit"
-        android:textColor="#80ffffff"
-        android:textSize="12sp" />
+        <!-- 品牌名 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DX-GEM"
+            android:textColor="#FFFFFF"
+            android:textSize="44sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.18"
+            android:fontFamily="sans-serif-black"
+            android:shadowColor="#40000000"
+            android:shadowDx="0"
+            android:shadowDy="4"
+            android:shadowRadius="12" />
 
-</LinearLayout>
+        <!-- 装饰线 -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="#40FFFFFF" />
+
+        <!-- 副标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="留学工具箱"
+            android:textColor="#FFE8D0"
+            android:textSize="17sp"
+            android:letterSpacing="0.08"
+            android:fontFamily="sans-serif-medium" />
+
+        <!-- 版本号 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="v3.1 · Study Abroad Toolkit"
+            android:textColor="#50FFFFFF"
+            android:textSize="11sp"
+            android:letterSpacing="0.05" />
+
+    </LinearLayout>
+
+</RelativeLayout>
