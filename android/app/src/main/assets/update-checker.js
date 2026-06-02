@@ -1,9 +1,8 @@
 // 应用内更新检查器
 (function() {
-    var CURRENT_VERSION = 9; // 当前版本号（与 version.json 同步更新）
+    var CURRENT_VERSION = 10;
     var VERSION_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/version.json';
 
-    // 延迟检查，等页面加载完
     setTimeout(checkUpdate, 2000);
 
     function checkUpdate() {
@@ -16,7 +15,7 @@
                 try {
                     var info = JSON.parse(xhr.responseText);
                     if (info.versionCode > CURRENT_VERSION) {
-                        showUpdateDialog(info);
+                        showUpdateModal(info);
                     }
                 } catch(e) {}
             };
@@ -25,23 +24,47 @@
         } catch(e) {}
     }
 
-    function showUpdateDialog(info) {
-        var msg = '\u{1F310} 发现新版本 ' + info.versionName + '\n\n';
-        msg += '更新内容：\n' + (info.changelog || '优化和修复') + '\n\n';
-        msg += '大小：' + (info.apkSize || '未知') + '\n\n';
-        msg += '是否立即更新？';
+    function showUpdateModal(info) {
+        // 解析 changelog 为列表
+        var items = (info.changelog || '').split('·').filter(function(s) { return s.trim(); });
+        var listHtml = items.map(function(item) {
+            return '<li>' + item.trim() + '</li>';
+        }).join('');
 
-        if (confirm(msg)) {
-            doUpdate(info.apkUrl);
-        }
-    }
+        var html = '<div class="modal-overlay" id="updateModal">' +
+            '<div class="modal-dialog">' +
+                '<div class="modal-header">' +
+                    '<div class="version-badge">NEW</div>' +
+                    '<h2>' + info.versionName + '</h2>' +
+                '</div>' +
+                '<div class="modal-body">' +
+                    '<ul class="changelog-list">' + listHtml + '</ul>' +
+                    '<div class="file-size">' + (info.apkSize || '') + '</div>' +
+                '</div>' +
+                '<div class="modal-footer">' +
+                    '<button class="modal-btn-cancel" onclick="window._dismissUpdate()">以后再说</button>' +
+                    '<button class="modal-btn-update" onclick="window._doUpdate()">立即更新</button>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
 
-    function doUpdate(url) {
-        if (window.AndroidUpdate) {
-            window.AndroidUpdate.downloadAndInstall(url);
-        } else {
-            // 浏览器环境：直接打开下载链接
-            window.open(url, '_blank');
-        }
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        document.body.appendChild(div.firstElementChild);
+
+        window._updateUrl = info.apkUrl;
+        window._dismissUpdate = function() {
+            var modal = document.getElementById('updateModal');
+            if (modal) { modal.style.opacity = '0'; setTimeout(function() { modal.remove(); }, 200); }
+        };
+        window._doUpdate = function() {
+            var modal = document.getElementById('updateModal');
+            if (modal) modal.remove();
+            if (window.AndroidUpdate) {
+                window.AndroidUpdate.downloadAndInstall(window._updateUrl);
+            } else {
+                window.open(window._updateUrl, '_blank');
+            }
+        };
     }
 })();

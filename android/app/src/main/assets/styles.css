@@ -1,27 +1,32 @@
-/* === 留学工具箱 — 全局样式（移动优先 · 设计升级版） === */
+/* === 留学工具箱 — 全局样式（Glass Morphism · 现代设计） === */
 
-/* --- CSS 变量（暖色活力主题） --- */
+/* --- CSS 变量 --- */
 :root {
-    --primary: #f97316;
-    --primary-dark: #ea580c;
-    --primary-light: #fff7ed;
-    --primary-ghost: #fff1e6;
-    --bg: #fffbf7;
-    --card-bg: #ffffff;
-    --text: #292524;
+    --primary: #ff6b35;
+    --primary-dark: #e55a2b;
+    --primary-light: #fff5f0;
+    --primary-ghost: #fff0e8;
+    --accent: #ff8c5a;
+    --bg: #faf8f5;
+    --card-bg: rgba(255,255,255,0.85);
+    --card-bg-solid: #ffffff;
+    --glass: rgba(255,255,255,0.7);
+    --glass-border: rgba(255,255,255,0.9);
+    --text: #1c1917;
     --text-muted: #78716c;
-    --border: #fde7d4;
-    --border-light: #fef2e8;
+    --border: #f0e0d6;
+    --border-light: #f5ebe3;
     --success: #10b981;
     --warning: #f59e0b;
     --error: #ef4444;
-    --radius-sm: 10px;
-    --radius: 16px;
-    --radius-lg: 20px;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-    --shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
-    --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
-    --shadow-lg: 0 12px 32px rgba(0,0,0,0.08), 0 4px 10px rgba(249,115,22,0.06);
+    --radius-sm: 12px;
+    --radius: 20px;
+    --radius-lg: 24px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+    --shadow: 0 4px 16px rgba(0,0,0,0.04), 0 2px 6px rgba(0,0,0,0.02);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.06), 0 4px 8px rgba(255,107,53,0.04);
+    --shadow-lg: 0 16px 40px rgba(0,0,0,0.08), 0 6px 12px rgba(255,107,53,0.06);
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* --- Reset --- */
@@ -30,18 +35,47 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
                  "Microsoft YaHei", "Noto Sans SC", sans-serif;
-    background: var(--bg);
+    background: linear-gradient(180deg, #fef9f5 0%, #faf8f5 30%, #f5f0eb 100%);
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
-    /* 修复 vivo/OPPO 等国产手机 WebView 文字缩放问题 */
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
     text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
     word-break: break-all;
     overflow-wrap: break-word;
+}
+
+/* --- Smooth page transitions --- */
+.tool-page, .select-hero {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* --- Glass card --- */
+.glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
 }
 
 /* --- Header --- */
@@ -675,4 +709,171 @@ body {
     font-size: 0.8125rem;
     cursor: pointer;
     white-space: nowrap;
+}
+
+/* --- Custom Modal Dialog（玻璃拟态弹窗） --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-dialog {
+    background: var(--card-bg-solid);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.2), 0 8px 20px rgba(255,107,53,0.1);
+    width: 100%;
+    max-width: 360px;
+    overflow: hidden;
+    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #ff6b35, #e55a2b);
+    padding: 24px 20px 20px;
+    text-align: center;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.modal-header .version-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.25);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body .changelog-list {
+    list-style: none;
+    padding: 0;
+}
+
+.modal-body .changelog-list li {
+    padding: 6px 0;
+    font-size: 0.875rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-body .changelog-list li:last-child { border-bottom: none; }
+.modal-body .changelog-list li::before {
+    content: '✦';
+    color: var(--primary);
+    font-size: 0.75rem;
+}
+
+.modal-body .file-size {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+}
+
+.modal-footer {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid var(--border-light);
+}
+
+.modal-footer button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.modal-btn-cancel {
+    background: #f5f5f4;
+    color: var(--text-muted);
+}
+.modal-btn-cancel:active { background: #e7e5e4; }
+
+.modal-btn-update {
+    background: linear-gradient(135deg, #ff6b35, #e55a2b);
+    color: #fff;
+}
+.modal-btn-update:active { opacity: 0.85; }
+
+/* --- Modern Button --- */
+.btn {
+    display: block;
+    width: 100%;
+    padding: 14px 24px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+    background: linear-gradient(135deg, #ff6b35, #e55a2b);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(255,107,53,0.25);
+}
+
+.btn-secondary {
+    background: var(--card-bg-solid);
+    color: var(--text);
+    border: 2px solid var(--border);
+}
+
+/* --- Tool Card (首页) --- */
+.tool-card {
+    background: var(--card-bg-solid);
+    border-radius: var(--radius);
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-light);
+    transition: all var(--transition);
+}
+
+.tool-card:active {
+    transform: scale(0.97);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
 }

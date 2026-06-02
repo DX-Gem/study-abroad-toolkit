@@ -1,8 +1,8 @@
 {
-  "versionCode": 9,
-  "versionName": "v2.1",
+  "versionCode": 10,
+  "versionName": "v2.2",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "🔄 任意货币互转 · ⇄ 交换按钮 · 自定义汇率支持所有货币对 · Bug修复",
+  "changelog": "✨ 全新玻璃拟态UI · 自定义更新弹窗 · 毛玻璃效果 · 流畅动画 · 卡片重设计 · 配色升级",
   "forceUpdate": false
 }
