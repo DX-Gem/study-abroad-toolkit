@@ -1,8 +1,8 @@
 {
-  "versionCode": 16,
+  "versionCode": 17,
   "versionName": "v2.6",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "👤 右上角人像图标 · 点击进个人信息页 · 底部Tab精简为4项 · 切换目的地整合到「我的」",
+  "changelog": "修复更新检测 · 移除每日限制 · 每次打开都检查 · 右上角人像图标 · Tab精简4项",
   "forceUpdate": false
 }

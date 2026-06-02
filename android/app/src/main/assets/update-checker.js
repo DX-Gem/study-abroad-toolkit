@@ -1,31 +1,30 @@
 // 应用内更新检查器
 (function() {
-    var CURRENT_VERSION = 16;
+    var CURRENT_VERSION = 17;
     var VERSION_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/version.json';
 
     setTimeout(checkUpdate, 2500);
 
     function checkUpdate() {
-        // 检查今天是否已提醒过（同版本一天只提醒一次）
-        var lastCheck = localStorage.getItem('update_last_check');
-        var today = new Date().toDateString();
-        if (lastCheck === today + '_v' + CURRENT_VERSION) return;
+        // 检查是否已跳过最新版本
+        var cachedLatest = localStorage.getItem('update_latest_version');
 
         try {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', VERSION_URL, true);
-            xhr.timeout = 10000;
+            xhr.timeout = 8000;
             xhr.onload = function() {
                 if (xhr.status !== 200) return;
                 try {
                     var info = JSON.parse(xhr.responseText);
+                    // 保存最新版本号
+                    localStorage.setItem('update_latest_version', info.versionCode);
                     if (info.versionCode > CURRENT_VERSION) {
-                        // 检查这个版本是否被跳过
+                        // 检查是否被用户跳过
                         var skipped = localStorage.getItem('update_skipped_version');
                         if (skipped && parseInt(skipped) >= info.versionCode) return;
                         showUpdateModal(info);
                     }
-                    localStorage.setItem('update_last_check', today + '_v' + CURRENT_VERSION);
                 } catch(e) {}
             };
             xhr.onerror = function() {};
