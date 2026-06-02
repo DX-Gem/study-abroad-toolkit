@@ -5,19 +5,19 @@
 :root {
     --primary: #E76F51;
     --primary-dark: #C85D3F;
-    --primary-light: #FFF0EB;
-    --primary-ghost: #FFE8E0;
+    --primary-light: #FFF5F2;
+    --primary-ghost: #FFEDE8;
     --accent: #F4A261;
-    --accent-dark: #264653;
-    --bg: #FFF5EC;
-    --card-bg: rgba(255,255,255,0.88);
+    --accent-dark: #2A9D8F;
+    --bg: #FFFAF7;
+    --card-bg: rgba(255,255,255,0.95);
     --card-bg-solid: #FFFFFF;
-    --glass: rgba(255,255,255,0.72);
-    --glass-border: rgba(255,255,255,0.92);
+    --glass: rgba(255,255,255,0.85);
+    --glass-border: rgba(255,255,255,0.95);
     --text: #1C1A18;
     --text-muted: #8B7E74;
-    --border: #F0DCD0;
-    --border-light: #F5E8DF;
+    --border: #F0E0D5;
+    --border-light: #F5EBE3;
     --success: #2A9D8F;
     --warning: #E9C46A;
     --error: #E76F51;
@@ -45,7 +45,7 @@ body { font-size: 0.9375rem; color: var(--text); }
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
                  "Microsoft YaHei", "Noto Sans SC", sans-serif;
-    background: linear-gradient(180deg, #FFF5EC 0%, #FFF8F3 30%, #F5EDE5 100%);
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFFAF7 30%, #FFF5F0 100%);
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
