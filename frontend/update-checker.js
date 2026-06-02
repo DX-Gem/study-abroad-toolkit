@@ -1,6 +1,6 @@
 // 应用内更新检查器
 (function() {
-    var CURRENT_VERSION = 24;
+    var CURRENT_VERSION = 25;
     var VERSION_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/version.json';
 
     setTimeout(checkUpdate, 2500);
