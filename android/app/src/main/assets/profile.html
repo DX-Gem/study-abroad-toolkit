@@ -54,6 +54,47 @@
             background: transparent; color: var(--text-muted);
             font-size: 0.8125rem; cursor: pointer; text-align: center;
         }
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .album-item {
+            aspect-ratio: 1;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            position: relative;
+            background: var(--border-light);
+        }
+        .album-item img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .album-item .del-photo {
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            border: none;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .add-photo-btn {
+            display: flex; align-items: center; justify-content: center;
+            aspect-ratio: 1;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 2rem;
+            color: var(--text-muted);
+            transition: all var(--transition);
+        }
+        .add-photo-btn:active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+        #photoInput { display: none; }
     </style>
 </head>
 <body>
@@ -113,7 +154,69 @@
             html += '<a class="country-switch-btn" href="select.html">🔄 切换留学目的地</a>';
             html += '<button class="reset-btn" onclick="resetProfile()">🔄 重新设置个人信息</button>';
 
+            // 相册
+            html += '<div class="profile-card"><h3>📷 留学相册</h3><div class="album-grid" id="albumGrid"></div></div>';
+
             container.innerHTML = html;
+            renderAlbum();
+        }
+
+        // ===== 相册功能 =====
+        function getPhotos() {
+            try { return JSON.parse(localStorage.getItem('album_photos') || '[]'); }
+            catch(e) { return []; }
+        }
+        function savePhotos(photos) {
+            localStorage.setItem('album_photos', JSON.stringify(photos));
+        }
+
+        function addPhoto() {
+            var input = document.getElementById('photoInput');
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.id = 'photoInput';
+                input.style.display = 'none';
+                input.onchange = function(e) {
+                    var file = e.target.files[0];
+                    if (!file) return;
+                    var reader = new FileReader();
+                    reader.onload = function(ev) {
+                        var photos = getPhotos();
+                        photos.unshift({
+                            id: Date.now(),
+                            data: ev.target.result,
+                            date: new Date().toISOString().slice(0,10)
+                        });
+                        // 限制最多50张，防爆localStorage
+                        if (photos.length > 50) photos = photos.slice(0,50);
+                        savePhotos(photos);
+                        renderAlbum();
+                    };
+                    reader.readAsDataURL(file);
+                };
+                document.body.appendChild(input);
+            }
+            input.click();
+        }
+
+        function deletePhoto(id) {
+            if (!confirm('删除这张照片？')) return;
+            var photos = getPhotos().filter(function(p) { return p.id !== id; });
+            savePhotos(photos);
+            renderAlbum();
+        }
+
+        function renderAlbum() {
+            var grid = document.getElementById('albumGrid');
+            if (!grid) return;
+            var photos = getPhotos();
+            var html = '<div class="add-photo-btn" onclick="addPhoto()">+</div>';
+            photos.forEach(function(p) {
+                html += '<div class="album-item"><img src="' + p.data + '" loading="lazy"><button class="del-photo" onclick="event.stopPropagation();deletePhoto(' + p.id + ')">✕</button></div>';
+            });
+            grid.innerHTML = html;
         }
 
         function resetProfile() {
