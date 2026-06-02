@@ -1,6 +1,6 @@
 // 应用内更新检查器
 (function() {
-    var CURRENT_VERSION = 7; // 当前版本号（与 version.json 同步更新）
+    var CURRENT_VERSION = 8; // 当前版本号（与 version.json 同步更新）
     var VERSION_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/version.json';
 
     // 延迟检查，等页面加载完
