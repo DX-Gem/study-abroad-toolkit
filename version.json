@@ -1,8 +1,8 @@
 {
-  "versionCode": 19,
-  "versionName": "v2.8",
+  "versionCode": 20,
+  "versionName": "v3.0",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "🎨 Sunset Boulevard专业配色 · 珊瑚暖橙 · 字体层级规范 · 暗色模式支持 · 品牌视觉统一",
+  "changelog": "🎨 UI v3.0 · 微交互动效 · 暗色手动切换 · 骨架屏加载 · 平滑过渡动画 · 波纹脉冲弹跳效果 · Toast提示",
   "forceUpdate": false
 }
