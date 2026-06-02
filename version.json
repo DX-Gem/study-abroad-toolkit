@@ -1,8 +1,8 @@
 {
-  "versionCode": 15,
+  "versionCode": 16,
   "versionName": "v2.6",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "修复更新弹窗重复提醒 · 新增「跳过此版本」按钮 · 同版本每天只检查一次 · 更新更安静",
+  "changelog": "👤 右上角人像图标 · 点击进个人信息页 · 底部Tab精简为4项 · 切换目的地整合到「我的」",
   "forceUpdate": false
 }
