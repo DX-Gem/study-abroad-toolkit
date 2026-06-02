@@ -92,23 +92,15 @@ body {
 .header {
     background: linear-gradient(160deg, #F4A261 0%, #E76F51 40%, #C85D3F 100%);
     color: #fff;
-    padding: 14px 12px;
+    padding: 0 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: relative;
     overflow: hidden;
-    min-height: 52px;
+    height: 48px;
 }
-.header h1 {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #fff;
-    flex: 1;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-}
+.header h1 { display: none; }
 /* 头部装饰圆点 */
 .header::after {
     content: '';
