@@ -92,10 +92,22 @@ body {
 .header {
     background: linear-gradient(160deg, #F4A261 0%, #E76F51 40%, #C85D3F 100%);
     color: #fff;
-    padding: 32px 20px 28px;
-    text-align: center;
+    padding: 14px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     position: relative;
     overflow: hidden;
+    min-height: 52px;
+}
+.header h1 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+    flex: 1;
+    text-align: center;
+    margin: 0;
+    padding: 0;
 }
 /* 头部装饰圆点 */
 .header::after {
@@ -115,22 +127,36 @@ body {
     border-radius: 50%;
 }
 
-/* 右上角人像图标 */
-.header-avatar {
-    position: absolute;
-    top: 14px;
-    right: 16px;
+/* 左上返回箭头 */
+.header-back {
     width: 36px; height: 36px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+    z-index: 10;
+    transition: background var(--transition);
+}
+.header-back:active { background: rgba(255,255,255,0.35); }
+.header-back svg { width: 18px; height: 18px; fill: #fff; }
+
+/* 右上角人像图标 */
+.header-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
     display: flex; align-items: center; justify-content: center;
     text-decoration: none;
     color: #fff;
     font-size: 1.125rem;
     font-weight: 700;
     z-index: 10;
+    flex-shrink: 0;
     transition: background var(--transition);
-    border: 2px solid rgba(255,255,255,0.4);
+    border: 2px solid rgba(255,255,255,0.35);
 }
 .header-avatar:active { background: rgba(255,255,255,0.4); }
 .header-avatar svg { width: 20px; height: 20px; fill: #fff; }
