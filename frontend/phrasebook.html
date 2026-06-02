@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>应急短语手册 — 留学工具箱</title>
+    <title>应急翻译 — 留学工具箱</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f97316">
@@ -210,13 +210,13 @@
     </style>
 </head>
 <body>
-    <div class="header"><h1>🆘 留学工具箱</h1></div>
+    <div class="header"><h1>🌐 留学工具箱</h1></div>
     <main class="tool-page" style="padding-bottom:80px;">
-        <h1>🆘 应急短语手册</h1>
+        <h1>🌐 应急翻译</h1>
 
         <div class="translate-area">
             <div class="lang-selector">
-                <select id="fromLang"><option value="zh">🇨🇳 中文</option></select>
+                <select id="fromLang"></select>
                 <button class="swap-btn" onclick="swapLangs()" title="交换语言">⇄</button>
                 <select id="toLang"></select>
             </div>
@@ -248,7 +248,7 @@
 
     <nav class="tab-bar">
         <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
-        <a href="phrasebook.html" class="tab-item active">🆘<span>短语</span></a>
+        <a href="phrasebook.html" class="tab-item active">🌐<span>翻译</span></a>
         <a href="ledger.html" class="tab-item">💰<span>记账</span></a>
         <a href="timezone.html" class="tab-item">🕐<span>时区</span></a>
         <a href="countdown.html" class="tab-item">✅<span>待办</span></a>
@@ -281,20 +281,26 @@
         const LANG_API_MAP = {};
         ALL_LANGS.forEach(l => { LANG_API_MAP[l.code] = l.api; });
 
-        // 初始化翻译语言下拉框
+        // 初始化翻译语言下拉框（双向都可选）
         (function initLangSelectors() {
             const fromSelect = document.getElementById('fromLang');
             const toSelect = document.getElementById('toLang');
             const country = getSelectedCountry();
 
             ALL_LANGS.forEach(l => {
-                const opt = document.createElement('option');
-                opt.value = l.code;
-                opt.textContent = `${l.flag} ${l.name}`;
-                toSelect.appendChild(opt.cloneNode(true));
+                const opt1 = document.createElement('option');
+                opt1.value = l.code;
+                opt1.textContent = `${l.flag} ${l.name}`;
+                fromSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = l.code;
+                opt2.textContent = `${l.flag} ${l.name}`;
+                toSelect.appendChild(opt2);
             });
 
-            // 默认目标语言 = 已选国家的第一语言
+            // 默认：中文 → 目标国家语言
+            fromSelect.value = 'zh';
             if (country && country.languages.length > 0) {
                 toSelect.value = country.languages[0].code;
             }
