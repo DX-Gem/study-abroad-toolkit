@@ -1,4 +1,5 @@
-const CACHE_NAME = 'study-abroad-v6-20260603';
+const CACHE_NAME = 'study-abroad-v7-20260603';
+const HTML_PAGES = ['/', '/index.html', '/login.html', '/community.html', '/post.html', '/friends.html', '/notifications.html', '/currency.html', '/phrasebook.html', '/knowledge.html', '/timezone.html', '/ledger.html', '/countdown.html', '/diary.html', '/profile.html', '/cost.html', '/packing.html', '/select.html', '/onboarding.html'];
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -73,7 +74,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 静态资源：缓存优先
+  // HTML 页面：网络优先（保证最新），失败时降级缓存
+  const pathname = url.pathname;
+  const isHtml = HTML_PAGES.includes(pathname) || pathname.endsWith('.html') || pathname === '/' || !pathname.includes('.');
+  if (isHtml) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const cloned = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // 其他静态资源：缓存优先
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
