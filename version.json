@@ -1,8 +1,8 @@
 {
-  "versionCode": 38,
-  "versionName": "v3.3",
+  "versionCode": 39,
+  "versionName": "v3.4",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "📱 v3.3 · 全部页面统一新版Header+Tab栏 · SW离线缓存补全 · 修复重复返回按钮 · cost/packing页升级 · phrasebookJS修复",
+  "changelog": "📱 v3.4 · 知识库大幅丰富(13国每国15+类别) · 新增饮食/租房/医疗/购物/安全/通讯6大板块",
   "forceUpdate": false
 }
