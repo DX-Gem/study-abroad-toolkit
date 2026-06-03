@@ -54,3 +54,22 @@ window.installPWA = function() {
 if (window.matchMedia('(display-mode: standalone)').matches) {
   document.documentElement.classList.add('pwa-standalone');
 }
+
+// 全局消息红点更新
+(function() {
+  function updateBadge() {
+    try {
+      var msgs = JSON.parse(localStorage.getItem('notifications') || '[]');
+      var unread = msgs.filter(function(m) { return !m.read; }).length;
+      var badge = document.getElementById('notifyBadge');
+      if (badge) {
+        badge.textContent = unread > 99 ? '99+' : unread;
+        if (unread > 0) badge.classList.add('show');
+        else badge.classList.remove('show');
+      }
+    } catch(e) {}
+  }
+  updateBadge();
+  // 每30秒刷新一次红点
+  setInterval(updateBadge, 30000);
+})();

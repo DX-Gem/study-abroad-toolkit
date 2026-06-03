@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>消息 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#E76F51">
+    <style>
+        .notify-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px;
+            background: var(--card-bg-solid);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+        .notify-item.unread { border-left: 3px solid var(--primary); background: var(--primary-light); }
+        .notify-icon { font-size: 2rem; flex-shrink: 0; }
+        .notify-content { flex: 1; min-width: 0; }
+        .notify-content .title { font-size: 0.875rem; font-weight: 600; }
+        .notify-content .desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+        .notify-content .time { font-size: 0.6875rem; color: var(--text-muted); margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="header-back" title="返回首页"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></a>
+        <h1></h1>
+        <a href="notifications.html" class="header-notify" title="消息"><svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg><span class="badge" id="notifyBadge">0</span></a>
+        <a href="profile.html" class="header-avatar" title="个人信息"><svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></a>
+    </div>
+    <main class="tool-page" style="padding-bottom:80px;">
+        <h1>🔔 消息</h1>
+        <div id="notifyList">
+            <div class="empty-state">
+                <div class="empty-icon">🔔</div>
+                <p>暂无消息</p>
+                <p class="subtitle">好友请求、评论回复会显示在这里</p>
+            </div>
+        </div>
+    </main>
+
+    <nav class="tab-bar">
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🌐<span>翻译</span></a>
+        <a href="knowledge.html" class="tab-item">📚<span>知识</span></a>
+        <a href="timezone.html" class="tab-item">🕐<span>时区</span></a>
+        <a href="ledger.html" class="tab-item">💰<span>记账</span></a>
+    </nav>
+
+    <script src="app.js"></script>
+    <script src="update-checker.js"></script>
+    <script>
+        // 加载本地消息（后续接入Firebase后改为实时同步）
+        function loadNotifications() {
+            const msgs = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const container = document.getElementById('notifyList');
+            if (msgs.length === 0) return;
+            container.innerHTML = msgs.reverse().map(m => `
+                <div class="notify-item ${m.read ? '' : 'unread'}">
+                    <div class="notify-icon">${m.icon || '🔔'}</div>
+                    <div class="notify-content">
+                        <div class="title">${m.title}</div>
+                        <div class="desc">${m.desc}</div>
+                        <div class="time">${m.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 更新铃铛红点
+        function updateBadge() {
+            const msgs = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const unread = msgs.filter(m => !m.read).length;
+            const badge = document.getElementById('notifyBadge');
+            if (badge) {
+                badge.textContent = unread > 99 ? '99+' : unread;
+                if (unread > 0) badge.classList.add('show');
+                else badge.classList.remove('show');
+            }
+        }
+
+        loadNotifications();
+        updateBadge();
+    </script>
+</body>
+</html>
