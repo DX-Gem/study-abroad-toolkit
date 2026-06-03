@@ -1,8 +1,8 @@
 {
-  "versionCode": 34,
-  "versionName": "v3.0",
+  "versionCode": 35,
+  "versionName": "v3.1",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "🎨 UI v3.0 · 微交互动效 · 暗色手动切换 · 骨架屏加载 · 平滑过渡动画 · 波纹脉冲弹跳效果 · Toast提示",
+  "changelog": "📱 v3.1 · 底部Tab栏统一(汇率/翻译/知识/时区/记账) · 顶部栏高度优化 · 首页仪表盘统计 · 留学日记 · 知识库",
   "forceUpdate": false
 }
