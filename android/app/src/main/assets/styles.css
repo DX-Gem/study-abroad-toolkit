@@ -120,7 +120,7 @@ body {
     justify-content: space-between;
     position: relative;
     overflow: hidden;
-    height: 48px;
+    height: 56px;
 }
 .header h1 { display: none; }
 /* 头部装饰圆点 */
