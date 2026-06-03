@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>好友 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#E76F51">
+    <style>
+        .friends-page { padding: 0 16px 80px; max-width: 500px; margin: 0 auto; }
+        .section-title {
+            font-size: 0.8125rem; font-weight: 700; color: var(--text-muted);
+            padding: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .friend-item {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--card-bg-solid); border-radius: var(--radius-sm);
+            padding: 12px 14px; margin-bottom: 6px;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);
+        }
+        .friend-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 1.125rem; font-weight: 700; flex-shrink: 0;
+        }
+        .friend-info { flex: 1; min-width: 0; }
+        .friend-info .fname { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+        .friend-info .fmeta { font-size: 0.6875rem; color: var(--text-muted); }
+        .friend-actions { display: flex; gap: 6px; }
+        .btn-sm {
+            padding: 6px 14px; border-radius: 14px; border: 1.5px solid var(--border);
+            font-size: 0.75rem; font-weight: 600; cursor: pointer;
+            background: var(--card-bg-solid); color: var(--text);
+            transition: all 0.15s;
+        }
+        .btn-sm.accept { background: var(--success); color: #fff; border-color: var(--success); }
+        .btn-sm.reject { color: var(--error); border-color: var(--error); }
+        .search-box-container {
+            position: relative; margin-bottom: 14px;
+        }
+        .search-box-container input {
+            width: 100%; padding: 12px 14px; border: 2px solid var(--border);
+            border-radius: var(--radius-sm); font-size: 0.9375rem;
+            font-family: inherit; background: var(--card-bg-solid);
+        }
+        .search-box-container input:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(231,111,81,0.1);
+        }
+        .search-results {
+            background: var(--card-bg-solid); border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md); border: 1px solid var(--border);
+            position: absolute; width: 100%; z-index: 20; display: none;
+        }
+        .search-results.show { display: block; }
+        .search-result-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px; border-bottom: 1px solid var(--border-light);
+        }
+        .search-result-item:last-child { border-bottom: none; }
+        .empty-state {
+            text-align: center; padding: 40px 20px; color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="community.html" class="header-back" title="返回"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></a>
+        <h1>好友</h1>
+        <div style="width:40px;"></div>
+    </div>
+
+    <div class="friends-page">
+        <!-- 搜索添加好友 -->
+        <div class="search-box-container">
+            <input type="text" id="searchInput" placeholder="🔍 搜索用户（邮箱或昵称）..." oninput="searchUsers()" autocomplete="off">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <!-- 收到的好友请求 -->
+        <div id="receivedSection"></div>
+
+        <!-- 已发送的请求 -->
+        <div id="sentSection"></div>
+
+        <!-- 好友列表 -->
+        <div id="friendsSection"></div>
+    </div>
+
+    <nav class="tab-bar">
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🌐<span>翻译</span></a>
+        <a href="community.html" class="tab-item">👥<span>社区</span></a>
+        <a href="knowledge.html" class="tab-item">📚<span>知识</span></a>
+        <a href="ledger.html" class="tab-item">💰<span>记账</span></a>
+    </nav>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8000' : '';
+
+        function getToken() {
+            const token = localStorage.getItem('auth_token');
+            if (!token) { window.location.href = 'login.html'; return ''; }
+            return token;
+        }
+
+        async function loadFriends() {
+            const token = getToken();
+            if (!token) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/friends`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.status === 401) { window.location.href = 'login.html'; return; }
+                const data = await res.json();
+                renderFriends(data);
+            } catch (err) { console.error(err); }
+        }
+
+        function renderFriends(data) {
+            // 收到的请求
+            const received = document.getElementById('receivedSection');
+            if (data.pending_received.length > 0) {
+                received.innerHTML = `
+                    <div class="section-title">📩 收到的好友请求 (${data.pending_received.length})</div>
+                    ${data.pending_received.map(f => `
+                        <div class="friend-item">
+                            <div class="friend-avatar">${(f.friend_name || '?')[0].toUpperCase()}</div>
+                            <div class="friend-info">
+                                <div class="fname">${escapeHtml(f.friend_name)}</div>
+                                <div class="fmeta">想加你为好友</div>
+                            </div>
+                            <div class="friend-actions">
+                                <button class="btn-sm accept" onclick="acceptRequest('${f.friend_id}')">接受</button>
+                                <button class="btn-sm reject" onclick="rejectRequest('${f.friend_id}')">拒绝</button>
+                            </div>
+                        </div>
+                    `).join('')}`;
+            } else {
+                received.innerHTML = '';
+            }
+
+            // 已发送的请求
+            const sent = document.getElementById('sentSection');
+            if (data.pending_sent.length > 0) {
+                sent.innerHTML = `
+                    <div class="section-title">📤 已发送的请求 (${data.pending_sent.length})</div>
+                    ${data.pending_sent.map(f => `
+                        <div class="friend-item" style="opacity:0.6;">
+                            <div class="friend-avatar">${(f.friend_name || '?')[0].toUpperCase()}</div>
+                            <div class="friend-info">
+                                <div class="fname">${escapeHtml(f.friend_name)}</div>
+                                <div class="fmeta">等待对方接受...</div>
+                            </div>
+                        </div>
+                    `).join('')}`;
+            } else {
+                sent.innerHTML = '';
+            }
+
+            // 好友列表
+            const friends = document.getElementById('friendsSection');
+            friends.innerHTML = `
+                <div class="section-title">👥 我的好友 (${data.friends.length})</div>
+                ${data.friends.length === 0
+                    ? '<div class="empty-state"><p>还没有好友，用上方搜索框添加吧！</p></div>'
+                    : data.friends.map(f => `
+                        <div class="friend-item">
+                            <div class="friend-avatar">${(f.friend_name || '?')[0].toUpperCase()}</div>
+                            <div class="friend-info">
+                                <div class="fname">${escapeHtml(f.friend_name)}</div>
+                                <div class="fmeta">已添加</div>
+                            </div>
+                        </div>
+                    `).join('')}`;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        let searchTimeout;
+        async function searchUsers() {
+            clearTimeout(searchTimeout);
+            const q = document.getElementById('searchInput').value.trim();
+            const results = document.getElementById('searchResults');
+            if (!q || q.length < 1) { results.classList.remove('show'); return; }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/users/search?q=${encodeURIComponent(q)}`, {
+                        headers: { 'Authorization': `Bearer ${getToken()}` }
+                    });
+                    const data = await res.json();
+                    if (data.users.length === 0) {
+                        results.innerHTML = '<div class="search-result-item" style="color:var(--text-muted);">没有找到用户</div>';
+                    } else {
+                        results.innerHTML = data.users.map(u => `
+                            <div class="search-result-item">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div class="friend-avatar" style="width:36px;height:36px;font-size:0.875rem;">${(u.name || '?')[0].toUpperCase()}</div>
+                                    <div>
+                                        <div style="font-size:0.875rem;font-weight:600;">${escapeHtml(u.name)}</div>
+                                        <div style="font-size:0.6875rem;color:var(--text-muted);">${escapeHtml(u.email)}</div>
+                                    </div>
+                                </div>
+                                <button class="btn-sm accept" onclick="sendRequest('${u.email}')">加好友</button>
+                            </div>
+                        `).join('');
+                    }
+                    results.classList.add('show');
+                } catch (err) { console.error(err); }
+            }, 300);
+        }
+
+        async function sendRequest(email) {
+            try {
+                const res = await fetch(`${API_BASE}/api/friends/request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({ email })
+                });
+                if (!res.ok) { const err = await res.json(); throw new Error(err.detail); }
+                alert('好友请求已发送！');
+                document.getElementById('searchInput').value = '';
+                document.getElementById('searchResults').classList.remove('show');
+                loadFriends();
+            } catch (err) { alert(err.message); }
+        }
+
+        async function acceptRequest(friendId) {
+            try {
+                await fetch(`${API_BASE}/api/friends/accept`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({ friend_id: friendId })
+                });
+                loadFriends();
+            } catch (err) { alert('操作失败'); }
+        }
+
+        async function rejectRequest(friendId) {
+            if (!confirm('拒绝这个好友请求？')) return;
+            try {
+                await fetch(`${API_BASE}/api/friends/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({ friend_id: friendId })
+                });
+                loadFriends();
+            } catch (err) { alert('操作失败'); }
+        }
+
+        // 点击空白关闭搜索结果
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-box-container')) {
+                document.getElementById('searchResults').classList.remove('show');
+            }
+        });
+
+        getToken();
+        loadFriends();
+    </script>
+</body>
+</html>

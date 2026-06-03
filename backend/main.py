@@ -1,6 +1,6 @@
 """留学工具箱 — 后端 API 入口"""
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -129,6 +129,125 @@ async def translate_endpoint(body: TranslateRequest):
         "result": result["translated"],
         "match": result["match"],
     }
+
+
+# ── 社交模块 API ──────────────────────────────────────
+
+import backend.social as social
+
+# 启动时自动建表
+social.init_db()
+
+
+class AuthBody(BaseModel):
+    email: str
+    password: str
+    name: str = ""
+
+
+class ProfileBody(BaseModel):
+    name: str = None
+    avatar: str = None
+    school: str = None
+    bio: str = None
+
+
+class PostBody(BaseModel):
+    text: str
+    topic: str = ""
+    images: list = []
+
+
+class CommentBody(BaseModel):
+    text: str
+
+
+@app.post("/api/auth/register")
+async def api_register(body: AuthBody):
+    return social.register_user(body.email, body.password, body.name)
+
+
+@app.post("/api/auth/login")
+async def api_login(body: AuthBody):
+    return social.login_user(body.email, body.password)
+
+
+@app.get("/api/auth/me")
+async def api_me(authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    user = social.require_user(token)
+    return {"user": {k: user[k] for k in ["id", "email", "name", "avatar", "school", "bio"]}}
+
+
+@app.post("/api/auth/profile")
+async def api_profile(body: ProfileBody, authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.update_profile(token, body.name, body.avatar, body.school, body.bio)
+
+
+@app.post("/api/posts")
+async def api_create_post(body: PostBody, authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.create_post(token, body.text, body.topic, body.images)
+
+
+@app.get("/api/posts")
+async def api_list_posts(topic: str = "", page: int = 1, authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "").strip() or None
+    return social.list_posts(token, topic, page)
+
+
+@app.delete("/api/posts/{post_id}")
+async def api_delete_post(post_id: str, authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.delete_post(token, post_id)
+
+
+@app.post("/api/posts/{post_id}/comments")
+async def api_add_comment(post_id: str, body: CommentBody, authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.add_comment(token, post_id, body.text)
+
+
+@app.get("/api/posts/{post_id}/comments")
+async def api_list_comments(post_id: str):
+    return {"comments": social.list_comments(post_id)}
+
+
+@app.post("/api/posts/{post_id}/like")
+async def api_toggle_like(post_id: str, authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.toggle_like(token, post_id)
+
+
+@app.post("/api/friends/request")
+async def api_send_request(body: dict, authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.send_friend_request(token, body.get("email", ""))
+
+
+@app.post("/api/friends/accept")
+async def api_accept_request(body: dict, authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.accept_friend_request(token, body.get("friend_id", ""))
+
+
+@app.post("/api/friends/reject")
+async def api_reject_request(body: dict, authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.reject_friend_request(token, body.get("friend_id", ""))
+
+
+@app.get("/api/friends")
+async def api_list_friends(authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.list_friends(token)
+
+
+@app.get("/api/users/search")
+async def api_search_users(q: str = "", authorization: str = Header(default="")):
+    token = authorization.replace("Bearer ", "")
+    return social.search_users(token, q)
 
 
 # 托管前端静态文件（本地 + Vercel 统一走这里）

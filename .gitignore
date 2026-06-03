@@ -11,3 +11,7 @@ build/
 .vscode/
 
 .vercel
+data/*.db
+toolkit.apk
+toolkit.apk.idsig
+*.zip

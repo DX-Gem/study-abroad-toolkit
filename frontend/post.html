@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>发动态 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#E76F51">
+    <style>
+        .post-page { padding: 0 16px 40px; max-width: 500px; margin: 0 auto; }
+        .post-page textarea {
+            width: 100%; min-height: 180px; padding: 16px;
+            border: 2px solid var(--border); border-radius: var(--radius);
+            font-size: 1rem; font-family: inherit; line-height: 1.7;
+            background: var(--card-bg-solid); resize: vertical;
+        }
+        .post-page textarea:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(231,111,81,0.1);
+        }
+        .char-count {
+            text-align: right; font-size: 0.75rem; color: var(--text-muted);
+            padding: 4px 4px 12px;
+        }
+        .char-count.over { color: var(--error); }
+        .topic-grid {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+        }
+        .topic-chip {
+            padding: 8px 16px; border-radius: 20px;
+            border: 1.5px solid var(--border); background: var(--card-bg-solid);
+            font-size: 0.8125rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; color: var(--text-muted);
+        }
+        .topic-chip.selected {
+            background: var(--primary); color: #fff; border-color: var(--primary);
+        }
+        .btn-post {
+            width: 100%; padding: 14px;
+            background: var(--primary); color: #fff;
+            border: none; border-radius: var(--radius-sm);
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-post:active { background: var(--primary-dark); transform: scale(0.98); }
+        .btn-post:disabled { opacity: 0.5; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="community.html" class="header-back" title="返回"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></a>
+        <h1>发动态</h1>
+        <div style="width:40px;"></div>
+    </div>
+
+    <div class="post-page">
+        <textarea id="postText" placeholder="分享你的留学生活...&#10;&#10;💡 提示：话题标签帮更多人看到你的动态" maxlength="2000"></textarea>
+        <div class="char-count" id="charCount">0 / 2000</div>
+
+        <div style="font-size:0.8125rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;">选择话题（可选）</div>
+        <div class="topic-grid" id="topicGrid">
+            <button class="topic-chip" onclick="selectTopic('')">📝 无话题</button>
+            <button class="topic-chip selected" onclick="selectTopic('晒生活')">🏖 晒生活</button>
+            <button class="topic-chip" onclick="selectTopic('找室友')">🏠 找室友</button>
+            <button class="topic-chip" onclick="selectTopic('二手')">🔄 二手</button>
+            <button class="topic-chip" onclick="selectTopic('求助')">🆘 求助</button>
+            <button class="topic-chip" onclick="selectTopic('美食')">🍜 美食</button>
+            <button class="topic-chip" onclick="selectTopic('旅行')">✈ 旅行</button>
+            <button class="topic-chip" onclick="selectTopic('学习')">📚 学习</button>
+            <button class="topic-chip" onclick="selectTopic('其他')">📌 其他</button>
+        </div>
+
+        <button class="btn-post" onclick="submitPost()">发布动态</button>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8000' : '';
+
+        let selectedTopic = '晒生活';
+
+        function getToken() {
+            const token = localStorage.getItem('auth_token');
+            if (!token) { window.location.href = 'login.html'; }
+            return token;
+        }
+
+        document.getElementById('postText').addEventListener('input', function() {
+            const len = this.value.length;
+            const el = document.getElementById('charCount');
+            el.textContent = len + ' / 2000';
+            el.classList.toggle('over', len > 1800);
+        });
+
+        function selectTopic(topic) {
+            selectedTopic = topic;
+            document.querySelectorAll('.topic-chip').forEach(chip => {
+                chip.classList.toggle('selected', chip.textContent.includes(topic) || (topic === '' && chip.textContent === '📝 无话题'));
+            });
+        }
+
+        async function submitPost() {
+            const text = document.getElementById('postText').value.trim();
+            const token = getToken();
+            if (!token) return;
+
+            if (!text) { alert('请输入内容'); return; }
+            if (text.length > 2000) { alert('内容不能超过2000字'); return; }
+
+            const btn = document.querySelector('.btn-post');
+            btn.disabled = true;
+            btn.textContent = '发布中...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/posts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ text, topic: selectedTopic, images: [] })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || '发布失败');
+                }
+                window.location.href = 'community.html';
+            } catch (err) {
+                alert(err.message);
+                btn.disabled = false;
+                btn.textContent = '发布动态';
+            }
+        }
+
+        getToken();
+    </script>
+</body>
+</html>

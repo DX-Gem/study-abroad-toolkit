@@ -1,7 +1,12 @@
-const CACHE_NAME = 'study-abroad-v5-20260603';
+const CACHE_NAME = 'study-abroad-v6-20260603';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/login.html',
+  '/community.html',
+  '/post.html',
+  '/friends.html',
+  '/notifications.html',
   '/currency.html',
   '/phrasebook.html',
   '/knowledge.html',
