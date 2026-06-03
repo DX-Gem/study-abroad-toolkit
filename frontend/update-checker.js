@@ -1,82 +1,138 @@
-// 应用内更新检查器
+// ============================================================
+// 版本检查器 — 检测 Gitee 上的 version.json
+// 用于 APK 更新提示和兜底更新检测
+// ============================================================
 (function() {
-    var CURRENT_VERSION = 42;
-    var VERSION_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/version.json';
+  var CURRENT_VERSION = 44;  // 与 version.json 同步
+  var VERSION_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/version.json';
+  var LOCAL_FALLBACK = 'version.json';  // 本地降级
 
-    setTimeout(checkUpdate, 2500);
+  setTimeout(checkUpdate, 3000);
 
-    function checkUpdate() {
-        // 检查是否已跳过最新版本
-        var cachedLatest = localStorage.getItem('update_latest_version');
-
+  function checkUpdate() {
+    // PWA 场景：SW 自动更新已覆盖，这里作为 APK/兜底
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', VERSION_URL, true);
+      xhr.timeout = 8000;
+      xhr.onload = function() {
+        if (xhr.status !== 200) return;
         try {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', VERSION_URL, true);
-            xhr.timeout = 8000;
-            xhr.onload = function() {
-                if (xhr.status !== 200) return;
-                try {
-                    var info = JSON.parse(xhr.responseText);
-                    // 保存最新版本号
-                    localStorage.setItem('update_latest_version', info.versionCode);
-                    if (info.versionCode > CURRENT_VERSION) {
-                        // 检查是否被用户跳过
-                        var skipped = localStorage.getItem('update_skipped_version');
-                        if (skipped && parseInt(skipped) >= info.versionCode) return;
-                        showUpdateModal(info);
-                    }
-                } catch(e) {}
-            };
-            xhr.onerror = function() {};
-            xhr.send();
+          var info = JSON.parse(xhr.responseText);
+          processVersion(info);
         } catch(e) {}
+      };
+      xhr.onerror = function() {
+        // Gitee 不通，尝试本地
+        tryLocal();
+      };
+      xhr.send();
+    } catch(e) {
+      tryLocal();
+    }
+  }
+
+  function tryLocal() {
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', LOCAL_FALLBACK, true);
+      xhr.timeout = 5000;
+      xhr.onload = function() {
+        if (xhr.status !== 200) return;
+        try {
+          var info = JSON.parse(xhr.responseText);
+          processVersion(info);
+        } catch(e) {}
+      };
+      xhr.send();
+    } catch(e) {}
+  }
+
+  function processVersion(info) {
+    var latestCode = info.versionCode || 0;
+    if (latestCode <= CURRENT_VERSION) return;
+
+    // 已跳过此版本
+    var skipped = parseInt(localStorage.getItem('update_skipped_version') || '0');
+    if (skipped >= latestCode) return;
+
+    // 24小时内不重复弹
+    var lastShown = parseInt(localStorage.getItem('update_last_shown') || '0');
+    if (Date.now() - lastShown < 86400000) return;
+
+    localStorage.setItem('update_last_shown', Date.now());
+
+    // 检测是否在 APK WebView 中
+    var isAPK = (window.AndroidUpdate || navigator.userAgent.includes('Android'));
+    showUpdateModal(info, isAPK);
+  }
+
+  function showUpdateModal(info, isAPK) {
+    var html = '<div class="modal-overlay" id="updateModal">'
+      + '<div class="modal-dialog">'
+        + '<div class="modal-header">'
+          + '<div class="version-badge">NEW</div>'
+          + '<h2>' + (info.versionName || '新版本') + '</h2>'
+        + '</div>'
+        + '<div class="modal-body">'
+          + '<p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:8px;">' + (info.changelog || '有新版本可用') + '</p>'
+          + '<div style="font-size:0.75rem;color:var(--text-muted);">' + (info.apkSize || '') + '</div>'
+        + '</div>'
+        + '<div class="modal-footer">'
+          + '<button class="modal-btn-cancel" onclick="window._skipUpdate()">跳过</button>';
+
+    if (isAPK && info.apkUrl) {
+      html += '<button class="modal-btn-update" onclick="window._doUpdate()">下载APK</button>';
+    } else {
+      html += '<button class="modal-btn-update" onclick="window._doReload()">刷新页面</button>';
     }
 
-    function showUpdateModal(info) {
-        var items = (info.changelog || '').split('·').filter(function(s) { return s.trim(); });
-        var listHtml = items.map(function(item) {
-            return '<li>' + item.trim() + '</li>';
-        }).join('');
+    html += '</div></div></div>';
 
-        var html = '<div class="modal-overlay" id="updateModal">' +
-            '<div class="modal-dialog">' +
-                '<div class="modal-header">' +
-                    '<div class="version-badge">NEW</div>' +
-                    '<h2>' + info.versionName + '</h2>' +
-                '</div>' +
-                '<div class="modal-body">' +
-                    '<ul class="changelog-list">' + listHtml + '</ul>' +
-                    '<div class="file-size">' + (info.apkSize || '') + '</div>' +
-                '</div>' +
-                '<div class="modal-footer">' +
-                    '<button class="modal-btn-cancel" onclick="window._skipUpdate()">跳过此版本</button>' +
-                    '<button class="modal-btn-update" onclick="window._doUpdate()">立即更新</button>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    document.body.appendChild(div.firstElementChild);
 
-        var div = document.createElement('div');
-        div.innerHTML = html;
-        document.body.appendChild(div.firstElementChild);
+    window._updateInfo = info;
+    window._updateUrl = info.apkUrl;
 
-        window._updateUrl = info.apkUrl;
-        window._updateInfo = info;
-        window._skipUpdate = function() {
-            // 跳过此版本：记录已跳过的版本号，不再提醒
-            if (window._updateInfo) {
-                localStorage.setItem('update_skipped_version', window._updateInfo.versionCode);
-            }
-            var modal = document.getElementById('updateModal');
-            if (modal) { modal.style.opacity = '0'; setTimeout(function() { modal.remove(); }, 200); }
-        };
-        window._doUpdate = function() {
-            var modal = document.getElementById('updateModal');
-            if (modal) modal.remove();
-            if (window.AndroidUpdate) {
-                window.AndroidUpdate.downloadAndInstall(window._updateUrl);
-            } else {
-                window.open(window._updateUrl, '_blank');
-            }
-        };
-    }
+    window._skipUpdate = function() {
+      if (window._updateInfo) {
+        localStorage.setItem('update_skipped_version', window._updateInfo.versionCode);
+      }
+      var modal = document.getElementById('updateModal');
+      if (modal) { modal.style.opacity = '0'; setTimeout(function() { modal.remove(); }, 200); }
+    };
+
+    window._doUpdate = function() {
+      var modal = document.getElementById('updateModal');
+      if (modal) modal.remove();
+      if (window.AndroidUpdate) {
+        window.AndroidUpdate.downloadAndInstall(window._updateUrl);
+      } else {
+        window.open(window._updateUrl, '_blank');
+      }
+    };
+
+    window._doReload = function() {
+      var modal = document.getElementById('updateModal');
+      if (modal) modal.remove();
+      // 强制清除 SW 缓存并刷新
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(reg) { reg.unregister(); });
+        }).then(function() {
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              Promise.all(keys.map(function(k) { return caches.delete(k); }));
+            });
+          }
+        }).then(function() {
+          window.location.reload();
+        });
+      } else {
+        window.location.reload();
+      }
+    };
+  }
 })();

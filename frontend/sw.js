@@ -1,4 +1,4 @@
-const CACHE_NAME = 'study-abroad-v7-20260603';
+const CACHE_NAME = 'study-abroad-v8-20260603';
 const HTML_PAGES = ['/', '/index.html', '/login.html', '/community.html', '/post.html', '/friends.html', '/notifications.html', '/currency.html', '/phrasebook.html', '/knowledge.html', '/timezone.html', '/ledger.html', '/countdown.html', '/diary.html', '/profile.html', '/cost.html', '/packing.html', '/select.html', '/onboarding.html'];
 const STATIC_ASSETS = [
   '/',
@@ -25,6 +25,7 @@ const STATIC_ASSETS = [
   '/update-checker.js',
   '/sw.js',
   '/manifest.json',
+  '/version.json',
   '/icon-192.png',
   '/icon-512.png',
   '/data/cities.json',
@@ -55,6 +56,13 @@ self.addEventListener('activate', (event) => {
     )
   );
   self.clients.claim();
+});
+
+// 接收页面发来的 SKIP_WAITING 指令，立即激活新 SW
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', (event) => {
