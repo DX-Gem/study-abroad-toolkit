@@ -6,7 +6,7 @@
     <title>选择留学目的地 — 留学工具箱</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ff6b35">
+    <meta name="theme-color" content="#E76F51">
     <style>
         .select-hero {
             text-align: center;
@@ -123,11 +123,11 @@
             // 按洲分组排序
             const asia = COUNTRIES.filter(c => c.continent === '亚洲');
             const europe = COUNTRIES.filter(c => c.continent === '欧洲');
-            const americas = COUNTRIES.filter(c => c.continent.includes('北美'));
+            const americas = COUNTRIES.filter(c => c.continent === '北美洲');
             const oceania = COUNTRIES.filter(c => c.continent === '大洋洲');
             const other = COUNTRIES.filter(c =>
                 !c.continent.includes('亚洲') && !c.continent.includes('欧洲') &&
-                !c.continent.includes('北美') && !c.continent.includes('大洋洲')
+                c.continent !== '北美洲' && !c.continent.includes('大洋洲')
             );
 
             const ordered = [...asia, ...europe, ...americas, ...oceania, ...other];
