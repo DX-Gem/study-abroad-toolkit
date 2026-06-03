@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>留学日记 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#E76F51">
+    <style>
+        .diary-entry {
+            background: var(--card-bg-solid); border-radius: var(--radius);
+            padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light); position: relative;
+        }
+        .diary-entry .date { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; }
+        .diary-entry .text { font-size: 0.875rem; line-height: 1.6; color: var(--text); }
+        .diary-entry .photo { width: 100%; border-radius: var(--radius-sm); margin-top: 8px; }
+        .diary-entry .del { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #ef4444; font-size: 0.875rem; cursor: pointer; opacity: 0.5; }
+        .diary-input { background: var(--card-bg-solid); border-radius: var(--radius); padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); border: 1px solid var(--border-light); }
+        .diary-input textarea { width: 100%; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 10px; font-size: 0.875rem; resize: vertical; min-height: 60px; font-family: inherit; background: var(--bg); }
+        .diary-input textarea:focus { outline: none; border-color: var(--primary); }
+        .diary-actions { display: flex; gap: 8px; margin-top: 8px; }
+        .diary-actions .btn { font-size: 0.8125rem; padding: 10px 16px; }
+        .timeline-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .empty-diary { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-diary .icon { font-size: 3rem; display: block; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="header-back" title="返回首页"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></a>
+        <h1></h1>
+        <a href="profile.html" class="header-avatar" title="个人信息"><svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></a>
+    </div>
+    <main class="tool-page" style="padding-bottom:80px;">
+        <h1>📔 留学日记</h1>
+
+        <div class="diary-input">
+            <textarea id="diaryText" placeholder="记录留学生活的点滴..."></textarea>
+            <div class="diary-actions">
+                <button class="btn btn-primary" onclick="addDiary()" style="flex:1;">📝 记录</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('diaryPhoto').click()" style="flex:1;">📷 加照片</button>
+            </div>
+            <input type="file" id="diaryPhoto" accept="image/*" style="display:none" onchange="previewPhoto(event)">
+            <img id="photoPreview" style="display:none;width:100%;border-radius:var(--radius-sm);margin-top:8px;">
+        </div>
+
+        <div id="diaryList"></div>
+    </main>
+
+    <nav class="tab-bar">
+        <a href="index.html" class="tab-item">🏠<span>首页</span></a>
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🌐<span>翻译</span></a>
+        <a href="knowledge.html" class="tab-item">📚<span>知识</span></a>
+        <a href="profile.html" class="tab-item">👤<span>我的</span></a>
+    </nav>
+
+    <script>
+        var photoData = null;
+
+        function getDiary() {
+            try { return JSON.parse(localStorage.getItem('diary_entries') || '[]'); }
+            catch(e) { return []; }
+        }
+        function saveDiary(entries) {
+            if (entries.length > 100) entries = entries.slice(0,100);
+            localStorage.setItem('diary_entries', JSON.stringify(entries));
+        }
+
+        function previewPhoto(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                photoData = ev.target.result;
+                document.getElementById('photoPreview').src = photoData;
+                document.getElementById('photoPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function addDiary() {
+            var text = document.getElementById('diaryText').value.trim();
+            if (!text && !photoData) return;
+            var entries = getDiary();
+            entries.unshift({
+                id: Date.now(),
+                text: text,
+                photo: photoData || '',
+                date: new Date().toISOString().slice(0,10),
+                time: new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})
+            });
+            saveDiary(entries);
+            document.getElementById('diaryText').value = '';
+            photoData = null;
+            document.getElementById('photoPreview').style.display = 'none';
+            document.getElementById('diaryPhoto').value = '';
+            renderDiary();
+        }
+
+        function deleteDiary(id) {
+            if (!confirm('删除这条日记？')) return;
+            var entries = getDiary().filter(function(e){return e.id !== id;});
+            saveDiary(entries);
+            renderDiary();
+        }
+
+        function renderDiary() {
+            var entries = getDiary();
+            var container = document.getElementById('diaryList');
+            if (!entries.length) {
+                container.innerHTML = '<div class="empty-diary"><span class="icon">📔</span><p>还没有日记，记录第一条吧</p></div>';
+                return;
+            }
+            var html = '';
+            entries.forEach(function(e) {
+                html += '<div class="diary-entry"><button class="del" onclick="deleteDiary('+e.id+')">✕</button>';
+                html += '<div class="date"><span class="timeline-dot"></span>'+e.date+' '+e.time+'</div>';
+                if (e.text) html += '<div class="text">'+e.text.replace(/\n/g,'<br>')+'</div>';
+                if (e.photo) html += '<img class="photo" src="'+e.photo+'" loading="lazy">';
+                html += '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        renderDiary();
+    </script>
+    <script src="update-checker.js"></script>
+</body>
+</html>
