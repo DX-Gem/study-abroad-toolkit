@@ -1,8 +1,8 @@
 {
-  "versionCode": 35,
-  "versionName": "v3.1",
+  "versionCode": 36,
+  "versionName": "v3.2",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "📱 v3.1 · 底部Tab栏统一(汇率/翻译/知识/时区/记账) · 顶部栏高度优化 · 首页仪表盘统计 · 留学日记 · 知识库",
+  "changelog": "📱 v3.2 · 状态栏正常显示(不再遮挡电量时间) · 状态栏配色统一 · Tab栏顺序优化 · 顶部栏高度调整",
   "forceUpdate": false
 }
