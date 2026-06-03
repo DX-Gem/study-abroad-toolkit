@@ -118,58 +118,19 @@ public class MainActivity extends Activity {
             }
         }, "AndroidTTS");
 
-        // 应用内更新接口
+        // 应用内更新接口（v3.8.2起改为浏览器下载，不再需要REQUEST_INSTALL_PACKAGES权限）
         webView.addJavascriptInterface(new Object() {
             @android.webkit.JavascriptInterface
             public void downloadAndInstall(String apkUrl) {
-                new Thread(() -> {
-                    try {
-                        // 在主线程显示提示
-                        new Handler(Looper.getMainLooper()).post(() ->
-                            Toast.makeText(MainActivity.this, "正在下载更新...", Toast.LENGTH_SHORT).show());
-
-                        // 下载 APK
-                        URL url = new URL(apkUrl);
-                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                        conn.setConnectTimeout(15000);
-                        conn.setReadTimeout(60000);
-                        conn.connect();
-
-                        File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-                        if (dir == null) dir = getCacheDir();
-                        File apkFile = new File(dir, "toolkit-update.apk");
-                        if (apkFile.exists()) apkFile.delete();
-
-                        InputStream in = conn.getInputStream();
-                        FileOutputStream out = new FileOutputStream(apkFile);
-                        byte[] buf = new byte[8192];
-                        int len;
-                        while ((len = in.read(buf)) > 0) {
-                            out.write(buf, 0, len);
-                        }
-                        out.close();
-                        in.close();
-                        conn.disconnect();
-
-                        // 安装 APK
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        Uri apkUri;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            apkUri = androidx.core.content.FileProvider.getUriForFile(
-                                MainActivity.this, getPackageName() + ".fileprovider", apkFile);
-                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        } else {
-                            apkUri = Uri.fromFile(apkFile);
-                        }
-                        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-
-                    } catch (Exception e) {
-                        new Handler(Looper.getMainLooper()).post(() ->
-                            Toast.makeText(MainActivity.this, "下载失败: " + e.getMessage(), Toast.LENGTH_LONG).show());
-                    }
-                }).start();
+                // 统一用浏览器打开下载链接，兼容所有手机
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(apkUrl));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    new Handler(Looper.getMainLooper()).post(() ->
+                        Toast.makeText(MainActivity.this, "请手动复制链接到浏览器下载", Toast.LENGTH_LONG).show());
+                }
             }
         }, "AndroidUpdate");
 
