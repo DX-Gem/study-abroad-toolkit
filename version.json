@@ -1,8 +1,8 @@
 {
-  "versionCode": 47,
-  "versionName": "v3.8.2",
+  "versionCode": 48,
+  "versionName": "v3.8.3",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
-  "apkSize": "2.3MB",
-  "changelog": "修复vivo手机安装不兼容问题 · 移除受限权限 · 更新改为浏览器下载",
+  "apkSize": "2.4MB",
+  "changelog": "v3.8.3 . 主题色统一+美洲过滤修复+时区Tab补全+PWA脚本补全+成本/行李入口",
   "forceUpdate": false
 }
