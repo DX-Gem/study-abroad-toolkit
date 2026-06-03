@@ -1,8 +1,8 @@
 {
-  "versionCode": 36,
-  "versionName": "v3.2",
+  "versionCode": 37,
+  "versionName": "v3.2.1",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.5MB",
-  "changelog": "📱 v3.2 · 状态栏正常显示(不再遮挡电量时间) · 状态栏配色统一 · Tab栏顺序优化 · 顶部栏高度调整",
+  "changelog": "📱 v3.2.1 · 修复状态栏显示(移除全屏主题) · 状态栏配色#C85D3F统一品牌色",
   "forceUpdate": false
 }

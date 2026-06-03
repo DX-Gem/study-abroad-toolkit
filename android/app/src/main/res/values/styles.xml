@@ -6,10 +6,9 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <!-- 主应用主题 -->
+    <!-- 主应用主题：保留状态栏，不遮挡电量/时间 -->
     <style name="Theme.Toolkit" parent="android:Theme.Material.NoActionBar">
-        <item name="android:statusBarColor">#ea580c</item>
-        <item name="android:navigationBarColor">#ea580c</item>
-        <item name="android:windowFullscreen">true</item>
+        <item name="android:statusBarColor">#C85D3F</item>
+        <item name="android:navigationBarColor">#C85D3F</item>
     </style>
 </resources>
