@@ -2,108 +2,128 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>留学工具箱 — 中亚留学生的一站式实用工具</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>留学工具箱</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#f97316">
+    <meta name="theme-color" content="#E76F51">
+    <style>
+        .dashboard { padding: 0 16px 80px; max-width: 500px; margin: 0 auto; }
+        .greeting { padding: 20px 4px 16px; }
+        .greeting h1 { font-size: 1.375rem; margin-bottom: 2px; }
+        .greeting p { font-size: 0.8125rem; color: var(--text-muted); }
+        .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+        .stat-card {
+            background: var(--card-bg-solid); border-radius: var(--radius-sm);
+            padding: 14px 10px; text-align: center; box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+        .stat-card .num { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+        .stat-card .lbl { font-size: 0.625rem; color: var(--text-muted); margin-top: 2px; }
+        .tools-compact { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+        .tools-compact a {
+            background: var(--card-bg-solid); border-radius: var(--radius-sm);
+            padding: 16px 8px; text-align: center; text-decoration: none;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);
+            transition: all var(--transition);
+        }
+        .tools-compact a:active { transform: scale(0.94); border-color: var(--primary); }
+        .tools-compact .t-icon { font-size: 1.75rem; display: block; margin-bottom: 4px; }
+        .tools-compact .t-label { font-size: 0.6875rem; font-weight: 600; color: var(--text); }
+        .dash-card {
+            background: var(--card-bg-solid); border-radius: var(--radius);
+            padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+        .dash-card h3 { font-size: 0.9375rem; margin-bottom: 8px; display:flex; align-items:center; gap:6px; }
+        .dash-card .dash-row { display:flex; justify-content:space-between; padding:4px 0; font-size:0.8125rem; }
+        .dash-card .dash-row .val { font-weight:600; }
+        .progress-mini { height:6px; background:var(--border-light); border-radius:3px; margin:8px 0; overflow:hidden; }
+        .progress-mini div { height:100%; background:var(--primary); border-radius:3px; transition:width 0.4s; }
+        .emergency-btn {
+            display:flex; align-items:center; gap:8px; padding:10px 14px;
+            background:#fef2f2; border-radius:var(--radius-sm); text-decoration:none;
+            color:#dc2626; font-weight:700; font-size:0.875rem; margin-top:8px;
+        }
+        .emergency-btn:active { background:#fee2e2; }
+    </style>
 </head>
 <body>
-                <div class="header">
+    <div class="header">
         <a href="index.html" class="header-back" title="返回首页"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></a>
         <h1></h1>
         <a href="profile.html" class="header-avatar" title="个人信息"><svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></a>
     </div>
 
-    <div class="hero">
-        <span class="hero-icon" id="heroFlag">🎓</span>
-        <h2 id="heroTitle">留学准备，一站搞定</h2>
-        <p id="heroDesc">选择你的留学目的地，工具自动适配当地货币、时区、语言</p>
-    </div>
+    <div class="dashboard" id="dashboard"></div>
 
-    <div class="tools-grid">
-        <a href="currency.html" class="tool-card">
-            <div class="icon">🪙</div>
-            <div class="card-text">
-                <h2>汇率换算器</h2>
-                <p>人民币 ↔ 坚戈/卢布/美元/欧元 实时换算</p>
-            </div>
-            <span class="arrow">→</span>
-        </a>
-        <a href="phrasebook.html" class="tool-card">
-            <div class="icon">🌐</div>
-            <div class="card-text">
-                <h2>应急翻译</h2>
-                <p>10语互译 · 应急短语 · 离线朗读 · SOS</p>
-            </div>
-            <span class="arrow">→</span>
-        </a>
-        <a href="ledger.html" class="tool-card">
-            <div class="icon">💰</div>
-            <div class="card-text">
-                <h2>多币种记账本</h2>
-                <p>坚戈/卢布/人民币 多币种记账 · 自动换算</p>
-            </div>
-            <span class="arrow">→</span>
-        </a>
-        <a href="timezone.html" class="tool-card">
-            <div class="icon">🕐</div>
-            <div class="card-text">
-                <h2>时区转换器</h2>
-                <p>跨国时间对照 + 三时钟 + 课程表规划</p>
-            </div>
-            <span class="arrow">→</span>
-        </a>
-        <a href="countdown.html" class="tool-card">
-            <div class="icon">✅</div>
-            <div class="card-text">
-                <h2>出发倒计时</h2>
-                <p>留学时间线待办 · 从准备到抵达全流程</p>
-            </div>
-            <span class="arrow">→</span>
-        </a>
-        <a href="knowledge.html" class="tool-card">
-            <div class="icon">📚</div>
-            <div class="card-text">
-                <h2>常用知识</h2>
-                <p>紧急电话·用电·小费·习俗·签证·交通·气候</p>
-            </div>
-            <span class="arrow">→</span>
-        </a>
-    </div>
+    <nav class="tab-bar">
+        <a href="index.html" class="tab-item active">🏠<span>首页</span></a>
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🌐<span>翻译</span></a>
+        <a href="knowledge.html" class="tab-item">📚<span>知识</span></a>
+        <a href="profile.html" class="tab-item">👤<span>我的</span></a>
+    </nav>
 
-    <div class="footer">
-        <p>Study Abroad Toolkit · 让留学准备更简单</p>
-    </div>
-
-    <div class="install-banner" id="installBanner" style="display:none;">
-        📲 添加到手机桌面，像 App 一样使用
-        <button onclick="installPWA()">安装</button>
-    </div>
     <script src="data/country-data.js"></script>
     <script>
-        // 首次使用 → 跳转引导页
-        (function() {
-            var profile = localStorage.getItem('user_profile');
-            if (!profile) {
-                window.location.href = 'onboarding.html';
-                return;
-            }
+    (function() {
+        var profile = JSON.parse(localStorage.getItem('user_profile') || 'null');
+        if (!profile) { window.location.href = 'onboarding.html'; return; }
+        var country = getSelectedCountry();
+        if (!country) { window.location.href = 'select.html'; return; }
 
-            const country = getSelectedCountry();
-            if (country) {
-                document.getElementById('heroFlag').textContent = country.flag;
-                var userName = (JSON.parse(localStorage.getItem('user_profile') || '{}')).name || '同学';
-                document.getElementById('heroTitle').textContent = userName + '，🇨🇳 → ' + country.flag + ' ' + country.name;
-                document.getElementById('heroDesc').textContent =
-                    `货币：${country.currency.name} | 时区：${country.timezone.utc} | 月生活费约 ${country.cost.monthly}`;
-                document.getElementById('headerSubtitle').textContent =
-                    country.name + '留学生一站式实用工具';
-            } else {
-                // 没选过 → 跳转选择页
-                window.location.href = 'select.html';
-            }
-        })();
+        var name = profile.name || '同学';
+        var daysLeft = profile.departureDate ? Math.max(0, Math.ceil((new Date(profile.departureDate+'T00:00:00') - new Date()) / 86400000)) : '--';
+
+        // 记账统计
+        var ledger = JSON.parse(localStorage.getItem('ledger_data') || '{"records":[],"settings":{"monthly_budget_cny":3000}}');
+        var now = new Date(); var thisMonth = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+        var monthTotal = ledger.records.filter(function(r){return r.date.startsWith(thisMonth)}).reduce(function(s,r){return s+(r.amount_cny||0)},0);
+        var budget = ledger.settings.monthly_budget_cny || 3000;
+        var budgetPct = Math.min(100, Math.round(monthTotal/budget*100));
+
+        // 待办统计
+        var cd = JSON.parse(localStorage.getItem('countdown_data') || '{"tasks":[]}');
+        var taskDone = cd.tasks.filter(function(t){return t.done}).length;
+        var taskTotal = cd.tasks.length;
+        var taskPct = taskTotal ? Math.round(taskDone/taskTotal*100) : 0;
+
+        var html = '<div class="greeting"><h1>你好，'+name+' '+country.flag+'</h1><p>'+country.name+'留学工具箱 · '+country.timezone.city+' UTC'+country.timezone.utc.replace('UTC','')+'</p></div>';
+
+        html += '<div class="stats-row">';
+        html += '<div class="stat-card"><div class="num">'+daysLeft+'</div><div class="lbl">天 距出发</div></div>';
+        html += '<div class="stat-card"><div class="num">¥'+(monthTotal/1000).toFixed(1)+'k</div><div class="lbl">本月支出</div></div>';
+        html += '<div class="stat-card"><div class="num">'+taskDone+'/'+taskTotal+'</div><div class="lbl">待办完成</div></div>';
+        html += '</div>';
+
+        // 预算条
+        html += '<div class="dash-card"><h3>💰 月预算</h3><div style="display:flex;justify-content:space-between;font-size:0.8125rem;"><span>已花 ¥'+monthTotal.toFixed(0)+'</span><span>预算 ¥'+budget+'</span></div><div class="progress-mini"><div style="width:'+budgetPct+'%;background:'+(budgetPct>90?'var(--error)':budgetPct>70?'var(--warning)':'var(--success)')+';"></div></div></div>';
+
+        // 工具
+        html += '<div class="tools-compact">';
+        html += '<a href="currency.html"><span class="t-icon">🪙</span><span class="t-label">汇率</span></a>';
+        html += '<a href="phrasebook.html"><span class="t-icon">🌐</span><span class="t-label">翻译</span></a>';
+        html += '<a href="ledger.html"><span class="t-icon">💰</span><span class="t-label">记账</span></a>';
+        html += '<a href="timezone.html"><span class="t-icon">🕐</span><span class="t-label">时区</span></a>';
+        html += '<a href="knowledge.html"><span class="t-icon">📚</span><span class="t-label">知识</span></a>';
+        html += '<a href="countdown.html"><span class="t-icon">✅</span><span class="t-label">待办</span></a>';
+        html += '</div>';
+
+        // 紧急联系
+        html += '<div class="dash-card"><h3>🚨 紧急联系</h3>';
+        html += '<div class="dash-row"><span>报警</span><span class="val">'+getEmergencyNum(country,'police')+'</span></div>';
+        html += '<div class="dash-row"><span>急救</span><span class="val">'+getEmergencyNum(country,'ambulance')+'</span></div>';
+        html += '<a class="emergency-btn" href="knowledge.html">📖 查看全部知识 →</a></div>';
+
+        document.getElementById('dashboard').innerHTML = html;
+    })();
+
+    function getEmergencyNum(c, type) {
+        var k = {police:'警察',ambulance:'急救',fire:'火警'};
+        var em = {usa:{police:'911',ambulance:'911',fire:'911'},uk:{police:'999',ambulance:'999',fire:'999'},australia:{police:'000',ambulance:'000',fire:'000'},canada:{police:'911',ambulance:'911',fire:'911'},japan:{police:'110',ambulance:'119',fire:'119'},korea:{police:'112',ambulance:'119',fire:'119'},germany:{police:'110',ambulance:'112',fire:'112'},france:{police:'17',ambulance:'15',fire:'18'},russia:{police:'102',ambulance:'103',fire:'101'},kazakhstan:{police:'102',ambulance:'103',fire:'101'},azerbaijan:{police:'102',ambulance:'103',fire:'101'},malaysia:{police:'999',ambulance:'999',fire:'994'},singapore:{police:'999',ambulance:'995',fire:'995'}};
+        return (em[c.id]||em.kazakhstan)[type];
+    }
     </script>
     <script src="app.js"></script>
     <script src="update-checker.js"></script>
