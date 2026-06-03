@@ -216,7 +216,6 @@
         <a href="profile.html" class="header-avatar" title="个人信息"><svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></a>
     </div>
     <main class="tool-page" style="padding-bottom:80px;">
-        <a href="javascript:history.back()" class="header-back" title="返回"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></a>
         <h1>🌐 应急翻译</h1>
 
         <div class="translate-area">
@@ -416,8 +415,6 @@
             }
         }
 
-        function showInstallTTS() {
-            // 不弹窗，静默标记为无语音（用户可看拼音发音）
         var ttsUnavailable = false;
 
         function showInstallTTS() {
@@ -425,7 +422,6 @@
             // 更新所有朗读按钮显示
             var btns = document.querySelectorAll('.speak-btn');
             btns.forEach(function(b) { b.style.opacity = '0.25'; b.title = '语音包未安装（可看拼音发音）'; });
-        }
         }
 
         function speakViaWebSpeech(text, lang) {
