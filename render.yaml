@@ -3,7 +3,9 @@ services:
     name: study-abroad-toolkit
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    startCommand: mkdir -p data && uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.10
+      - key: DB_PATH
+        value: data/social.db
