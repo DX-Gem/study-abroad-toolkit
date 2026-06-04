@@ -41,9 +41,12 @@
             <textarea id="diaryText" placeholder="记录留学生活的点滴..."></textarea>
             <div class="diary-actions">
                 <button class="btn btn-primary" onclick="addDiary()" style="flex:1;">📝 记录</button>
-                <label class="btn btn-secondary" for="diaryPhoto" style="flex:1;text-align:center;cursor:pointer;">📷 加照片</label>
+                <button class="btn btn-secondary" onclick="takePhoto()" style="flex:1;">📷 拍照</button>
             </div>
-            <input type="file" id="diaryPhoto" accept="image/*" capture="environment" onchange="previewPhoto(event)" style="width:0;height:0;opacity:0;position:absolute;">
+            <video id="cameraView" autoplay playsinline style="display:none;width:100%;border-radius:var(--radius-sm);margin-top:8px;"></video>
+            <canvas id="cameraCanvas" style="display:none;"></canvas>
+            <button id="captureBtn" onclick="capturePhoto()" class="btn btn-primary" style="display:none;width:100%;margin-top:8px;">📸 拍摄</button>
+            <input type="file" id="diaryPhoto" accept="image/*" onchange="previewPhoto(event)" style="margin-top:8px;display:block;width:100%;">
             <img id="photoPreview" style="display:none;width:100%;border-radius:var(--radius-sm);margin-top:8px;">
         </div>
 
@@ -60,6 +63,7 @@
 
     <script>
         var photoData = null;
+        var cameraStream = null;
 
         function getDiary() {
             try { return JSON.parse(localStorage.getItem('diary_entries') || '[]'); }
@@ -70,9 +74,48 @@
             localStorage.setItem('diary_entries', JSON.stringify(entries));
         }
 
+        // 拍照功能（绕过 WebView 文件选择器限制）
+        async function takePhoto() {
+            var video = document.getElementById('cameraView');
+            var btn = document.getElementById('captureBtn');
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                video.srcObject = cameraStream;
+                video.style.display = 'block';
+                btn.style.display = 'block';
+            } catch(err) {
+                // 相机不可用，尝试文件选择器
+                document.getElementById('diaryPhoto').click();
+            }
+        }
+
+        function capturePhoto() {
+            var video = document.getElementById('cameraView');
+            var canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            photoData = canvas.toDataURL('image/jpeg', 0.7);
+            document.getElementById('photoPreview').src = photoData;
+            document.getElementById('photoPreview').style.display = 'block';
+            stopCamera();
+            document.getElementById('cameraView').style.display = 'none';
+            document.getElementById('captureBtn').style.display = 'none';
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(function(t) { t.stop(); });
+                cameraStream = null;
+            }
+        }
+
         function previewPhoto(e) {
             var file = e.target.files[0];
             if (!file) return;
+            stopCamera();
             compressImage(file, function(dataUrl) {
                 photoData = dataUrl;
                 document.getElementById('photoPreview').src = dataUrl;
