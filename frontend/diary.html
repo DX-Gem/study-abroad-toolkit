@@ -73,11 +73,30 @@
         function previewPhoto(e) {
             var file = e.target.files[0];
             if (!file) return;
+            compressImage(file, function(dataUrl) {
+                photoData = dataUrl;
+                document.getElementById('photoPreview').src = dataUrl;
+                document.getElementById('photoPreview').style.display = 'block';
+            });
+        }
+
+        function compressImage(file, callback) {
             var reader = new FileReader();
             reader.onload = function(ev) {
-                photoData = ev.target.result;
-                document.getElementById('photoPreview').src = photoData;
-                document.getElementById('photoPreview').style.display = 'block';
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    var maxW = 800, maxH = 600;
+                    var w = img.width, h = img.height;
+                    if (w > maxW) { h = h * maxW / w; w = maxW; }
+                    if (h > maxH) { w = w * maxH / h; h = maxH; }
+                    canvas.width = w;
+                    canvas.height = h;
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    callback(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.src = ev.target.result;
             };
             reader.readAsDataURL(file);
         }
