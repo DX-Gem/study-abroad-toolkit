@@ -2,7 +2,7 @@
 // 版本检查器 — 优先走后端代理(解决CORS)，兜底直连Gitee
 // ============================================================
 (function() {
-  var CURRENT_VERSION = 50;
+  var CURRENT_VERSION = 51;
   var GITEE_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/version.json';
   var LOCAL_FALLBACK = 'version.json';
 
