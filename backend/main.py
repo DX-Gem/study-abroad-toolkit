@@ -1,5 +1,6 @@
 """留学工具箱 — 后端 API 入口"""
-import os
+import os, json
+import httpx
 from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -18,6 +19,27 @@ app.add_middleware(
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
+
+@app.get("/api/version")
+async def get_version():
+    """获取最新版本信息 — 从 Gitee 代理拉取，解决手机端 CORS 问题"""
+    import json, os
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/version.json",
+                timeout=10.0
+            )
+            resp.raise_for_status()
+            return resp.json()
+    except Exception:
+        # Gitee 不可用时返回本地版本
+        try:
+            with open("frontend/version.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {"versionCode": 0, "versionName": "unknown"}
 
 
 from backend.currency import (
