@@ -15,3 +15,4 @@ data/*.db
 toolkit.apk
 toolkit.apk.idsig
 *.zip
+build_tmp/

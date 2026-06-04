@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>登录 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#E76F51">
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .auth-logo {
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .auth-subtitle {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+        .auth-card {
+            width: 100%;
+            background: var(--card-bg-solid);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+        }
+        .auth-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            background: var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 3px;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .auth-tab.active {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            font-family: inherit;
+            background: var(--bg);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(231,111,81,0.1);
+        }
+        .btn-auth {
+            width: 100%;
+            padding: 13px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: all 0.2s;
+        }
+        .btn-auth:active {
+            background: var(--primary-dark);
+            transform: scale(0.98);
+        }
+        .btn-auth:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .auth-error {
+            color: var(--error);
+            font-size: 0.8125rem;
+            text-align: center;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+        .auth-hint {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 12px;
+        }
+        .btn-back {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg-solid);
+            border: 1px solid var(--border);
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            color: var(--text);
+            text-decoration: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="btn-back">←</a>
+
+    <div class="auth-page">
+        <div class="auth-logo">🌍</div>
+        <div class="auth-title">留学工具箱</div>
+        <div class="auth-subtitle">留学生自己的社区</div>
+
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">登录</button>
+                <button class="auth-tab" onclick="switchTab('register')">注册</button>
+            </div>
+
+            <!-- 登录表单 -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="loginPassword" placeholder="至少6位" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-auth">登录</button>
+            </form>
+
+            <!-- 注册表单（默认隐藏） -->
+            <form id="registerForm" onsubmit="handleRegister(event)" style="display:none;">
+                <div class="form-group">
+                    <label>昵称</label>
+                    <input type="text" id="regName" placeholder="你的名字" required>
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="regEmail" placeholder="your@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="regPassword" placeholder="至少6位" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-auth">注册</button>
+            </form>
+
+            <div class="auth-error" id="authError"></div>
+        </div>
+
+        <div class="auth-hint">📱 注册即加入留学生社区 · 和全球留学生分享生活</div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8000'
+            : '';
+
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach((t, i) => {
+                t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+            });
+            document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+            document.getElementById('authError').textContent = '';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.querySelector('#loginForm .btn-auth');
+            const errEl = document.getElementById('authError');
+
+            if (!email || !password) { errEl.textContent = '请填写邮箱和密码'; return; }
+
+            btn.disabled = true;
+            btn.textContent = '登录中...';
+            errEl.textContent = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || '登录失败');
+
+                localStorage.setItem('auth_token', data.token);
+                localStorage.setItem('auth_user', JSON.stringify(data.user));
+                window.location.href = 'index.html';
+            } catch (err) {
+                errEl.textContent = err.message;
+                btn.disabled = false;
+                btn.textContent = '登录';
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const btn = document.querySelector('#registerForm .btn-auth');
+            const errEl = document.getElementById('authError');
+
+            if (!name || !email || !password) { errEl.textContent = '请填写所有字段'; return; }
+            if (password.length < 6) { errEl.textContent = '密码至少6位'; return; }
+
+            btn.disabled = true;
+            btn.textContent = '注册中...';
+            errEl.textContent = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, name })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || '注册失败');
+
+                localStorage.setItem('auth_token', data.token);
+                localStorage.setItem('auth_user', JSON.stringify(data.user));
+                window.location.href = 'index.html';
+            } catch (err) {
+                errEl.textContent = err.message;
+                btn.disabled = false;
+                btn.textContent = '注册';
+            }
+        }
+
+        // 已登录直接跳转首页
+        if (localStorage.getItem('auth_token')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+    <script src="app.js"></script>
+    <script src="update-checker.js"></script>
+</body>
+</html>

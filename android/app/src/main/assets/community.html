@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>留学圈 — 留学工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#E76F51">
+    <style>
+        .community-page { padding: 0 0 80px; max-width: 560px; margin: 0 auto; }
+        .topic-bar {
+            display: flex; gap: 6px; padding: 12px 16px; overflow-x: auto;
+            scrollbar-width: none; -ms-overflow-style: none;
+            position: sticky; top: 0; z-index: 10; background: var(--bg);
+        }
+        .topic-bar::-webkit-scrollbar { display: none; }
+        .topic-tag {
+            flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
+            border: 1.5px solid var(--border); background: var(--card-bg-solid);
+            font-size: 0.75rem; font-weight: 600; cursor: pointer;
+            white-space: nowrap; transition: all 0.2s; color: var(--text-muted);
+        }
+        .topic-tag.active {
+            background: var(--primary); color: #fff; border-color: var(--primary);
+        }
+
+        .post-card {
+            background: var(--card-bg-solid);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin: 0 16px 10px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+        .post-header {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+        }
+        .post-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 1.125rem; font-weight: 700; flex-shrink: 0;
+        }
+        .post-user { flex: 1; min-width: 0; }
+        .post-user .name { font-size: 0.875rem; font-weight: 700; color: var(--text); }
+        .post-user .time { font-size: 0.6875rem; color: var(--text-muted); }
+        .post-text {
+            font-size: 0.9375rem; line-height: 1.7; color: var(--text);
+            margin-bottom: 10px; word-break: break-word;
+        }
+        .post-topic-tag {
+            display: inline-block; padding: 2px 10px; border-radius: 10px;
+            background: var(--primary-ghost); color: var(--primary-dark);
+            font-size: 0.6875rem; font-weight: 600; margin-bottom: 8px;
+        }
+        .post-actions {
+            display: flex; gap: 20px; padding-top: 8px;
+            border-top: 1px solid var(--border-light);
+        }
+        .post-action {
+            display: flex; align-items: center; gap: 4px;
+            background: none; border: none; font-size: 0.8125rem;
+            color: var(--text-muted); cursor: pointer; padding: 4px 8px;
+            border-radius: 12px; transition: all 0.15s;
+        }
+        .post-action:active { background: var(--primary-ghost); }
+        .post-action.liked { color: var(--error); }
+        .post-action .icon { font-size: 1.125rem; }
+
+        .comments-section {
+            margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-light);
+            display: none;
+        }
+        .comments-section.show { display: block; }
+        .comment-item {
+            padding: 6px 0; font-size: 0.8125rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .comment-item:last-child { border-bottom: none; }
+        .comment-item .c-user { font-weight: 700; color: var(--primary-dark); margin-right: 6px; }
+        .comment-item .c-text { color: var(--text); }
+        .comment-input-row {
+            display: flex; gap: 8px; margin-top: 8px;
+        }
+        .comment-input-row input {
+            flex: 1; padding: 8px 12px; border: 1.5px solid var(--border);
+            border-radius: 20px; font-size: 0.8125rem; font-family: inherit;
+            background: var(--bg);
+        }
+        .comment-input-row input:focus { outline: none; border-color: var(--primary); }
+        .comment-input-row button {
+            padding: 8px 16px; border-radius: 20px; border: none;
+            background: var(--primary); color: #fff; font-size: 0.8125rem;
+            font-weight: 600; cursor: pointer;
+        }
+
+        .fab-post {
+            position: fixed; bottom: 80px; right: 20px;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: var(--primary); color: #fff; border: none;
+            font-size: 1.5rem; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(231,111,81,0.4);
+            z-index: 100; display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s; text-decoration: none;
+        }
+        .fab-post:active { transform: scale(0.9); }
+
+        .empty-feed {
+            text-align: center; padding: 60px 20px; color: var(--text-muted);
+        }
+        .empty-feed .icon { font-size: 3rem; margin-bottom: 12px; }
+
+        .load-more {
+            text-align: center; padding: 16px;
+        }
+        .load-more button {
+            padding: 10px 32px; border-radius: 20px; border: 1.5px solid var(--border);
+            background: var(--card-bg-solid); font-size: 0.8125rem; font-weight: 600;
+            cursor: pointer; color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="header-back" title="返回首页"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></a>
+        <h1>留学圈</h1>
+        <a href="friends.html" class="header-notify" title="好友" style="text-decoration:none;font-size:1.25rem;">👥</a>
+    </div>
+
+    <div class="community-page">
+        <!-- 话题筛选 -->
+        <div class="topic-bar" id="topicBar">
+            <button class="topic-tag active" onclick="filterTopic('')">全部</button>
+            <button class="topic-tag" onclick="filterTopic('晒生活')">🏖 晒生活</button>
+            <button class="topic-tag" onclick="filterTopic('找室友')">🏠 找室友</button>
+            <button class="topic-tag" onclick="filterTopic('二手')">🔄 二手</button>
+            <button class="topic-tag" onclick="filterTopic('求助')">🆘 求助</button>
+            <button class="topic-tag" onclick="filterTopic('美食')">🍜 美食</button>
+            <button class="topic-tag" onclick="filterTopic('旅行')">✈ 旅行</button>
+            <button class="topic-tag" onclick="filterTopic('学习')">📚 学习</button>
+        </div>
+
+        <!-- 动态列表 -->
+        <div id="feed"></div>
+
+        <!-- 加载更多 -->
+        <div class="load-more" id="loadMore" style="display:none;">
+            <button onclick="loadPosts(false)">加载更多...</button>
+        </div>
+    </div>
+
+    <!-- 发动态按钮 -->
+    <a href="post.html" class="fab-post" title="发动态">✏</a>
+
+    <!-- 底部导航 -->
+    <nav class="tab-bar">
+        <a href="currency.html" class="tab-item">🪙<span>汇率</span></a>
+        <a href="phrasebook.html" class="tab-item">🌐<span>翻译</span></a>
+        <a href="community.html" class="tab-item active">👥<span>社区</span></a>
+        <a href="knowledge.html" class="tab-item">📚<span>知识</span></a>
+        <a href="ledger.html" class="tab-item">💰<span>记账</span></a>
+    </nav>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8000' : '';
+
+        let currentTopic = '';
+        let currentPage = 1;
+        let allPosts = [];
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || '';
+        }
+
+        function checkLogin() {
+            if (!getToken()) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function loadPosts(reset = true) {
+            if (reset) { currentPage = 1; allPosts = []; }
+            if (!checkLogin()) return;
+
+            try {
+                const params = new URLSearchParams({ page: currentPage, topic: currentTopic });
+                const res = await fetch(`${API_BASE}/api/posts?${params}`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                if (res.status === 401) { window.location.href = 'login.html'; return; }
+                const data = await res.json();
+
+                if (reset) allPosts = data.posts;
+                else allPosts = [...allPosts, ...data.posts];
+
+                document.getElementById('loadMore').style.display = data.has_more ? 'block' : 'none';
+                renderPosts();
+            } catch (err) {
+                console.error('加载动态失败:', err);
+            }
+        }
+
+        function renderPosts() {
+            const feed = document.getElementById('feed');
+            if (allPosts.length === 0) {
+                feed.innerHTML = `<div class="empty-feed">
+                    <div class="icon">📭</div>
+                    <p>还没有动态，来发第一条吧！</p>
+                </div>`;
+                return;
+            }
+
+            feed.innerHTML = allPosts.map(p => {
+                const avatar = p.user_avatar || p.user_name.charAt(0).toUpperCase();
+                const time = formatTime(p.created_at);
+                return `
+                <div class="post-card" id="post-${p.id}">
+                    <div class="post-header">
+                        <div class="post-avatar">${avatar}</div>
+                        <div class="post-user">
+                            <div class="name">${escapeHtml(p.user_name)}</div>
+                            <div class="time">${time}</div>
+                        </div>
+                    </div>
+                    ${p.topic ? `<span class="post-topic-tag">#${escapeHtml(p.topic)}</span>` : ''}
+                    <div class="post-text">${escapeHtml(p.text)}</div>
+                    <div class="post-actions">
+                        <button class="post-action ${p.liked ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
+                            <span class="icon">${p.liked ? '❤️' : '🤍'}</span> ${p.likes_count || 0}
+                        </button>
+                        <button class="post-action" onclick="toggleComments('${p.id}')">
+                            <span class="icon">💬</span> ${p.comments_count || 0}
+                        </button>
+                        ${p.user_id === getUser().id ? `<button class="post-action" onclick="deleteMyPost('${p.id}')" style="margin-left:auto;"><span class="icon">🗑</span></button>` : ''}
+                    </div>
+                    <div class="comments-section" id="comments-${p.id}">
+                        <div id="commentList-${p.id}"></div>
+                        <div class="comment-input-row">
+                            <input type="text" id="commentInput-${p.id}" placeholder="写评论..." maxlength="200">
+                            <button onclick="submitComment('${p.id}')">发送</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function getUser() {
+            try { return JSON.parse(localStorage.getItem('auth_user') || '{}'); } catch(e) { return {}; }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function formatTime(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            const now = new Date();
+            const diffMs = now - d;
+            const diffMin = Math.floor(diffMs / 60000);
+            if (diffMin < 1) return '刚刚';
+            if (diffMin < 60) return diffMin + '分钟前';
+            const diffHour = Math.floor(diffMin / 60);
+            if (diffHour < 24) return diffHour + '小时前';
+            const diffDay = Math.floor(diffHour / 24);
+            if (diffDay < 7) return diffDay + '天前';
+            return d.toLocaleDateString('zh-CN');
+        }
+
+        async function toggleLike(postId) {
+            if (!checkLogin()) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/posts/${postId}/like`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                const data = await res.json();
+                // 更新本地数据
+                const post = allPosts.find(p => p.id === postId);
+                if (post) {
+                    post.liked = data.liked;
+                    post.likes_count = data.likes_count;
+                    renderPosts();
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        let openComments = {};
+
+        async function toggleComments(postId) {
+            const section = document.getElementById('comments-' + postId);
+            if (openComments[postId]) {
+                section.classList.remove('show');
+                openComments[postId] = false;
+            } else {
+                section.classList.add('show');
+                openComments[postId] = true;
+                await loadComments(postId);
+            }
+        }
+
+        async function loadComments(postId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/posts/${postId}/comments`);
+                const data = await res.json();
+                const list = document.getElementById('commentList-' + postId);
+                if (data.comments.length === 0) {
+                    list.innerHTML = '<div style="font-size:0.75rem;color:var(--text-muted);padding:8px 0;">暂无评论</div>';
+                } else {
+                    list.innerHTML = data.comments.map(c => `
+                        <div class="comment-item">
+                            <span class="c-user">${escapeHtml(c.user_name)}</span>
+                            <span class="c-text">${escapeHtml(c.text)}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function submitComment(postId) {
+            const input = document.getElementById('commentInput-' + postId);
+            const text = input.value.trim();
+            if (!text || !checkLogin()) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/posts/${postId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({ text })
+                });
+                if (!res.ok) throw new Error('评论失败');
+                input.value = '';
+                // 更新评论数
+                const post = allPosts.find(p => p.id === postId);
+                if (post) post.comments_count = (post.comments_count || 0) + 1;
+                renderPosts();
+                openComments[postId] = true;
+                document.getElementById('comments-' + postId).classList.add('show');
+                await loadComments(postId);
+            } catch (err) { alert('评论失败，请重试'); }
+        }
+
+        async function deleteMyPost(postId) {
+            if (!confirm('确定删除这条动态？')) return;
+            try {
+                await fetch(`${API_BASE}/api/posts/${postId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                allPosts = allPosts.filter(p => p.id !== postId);
+                renderPosts();
+            } catch (err) { alert('删除失败'); }
+        }
+
+        function filterTopic(topic) {
+            currentTopic = topic;
+            document.querySelectorAll('.topic-tag').forEach(t => {
+                t.classList.toggle('active', t.textContent.includes(topic) || (topic === '' && t.textContent === '全部'));
+            });
+            loadPosts(true);
+        }
+
+        // 启动
+        if (!checkLogin()) { /* will redirect */ } else { loadPosts(); }
+    </script>
+    <script src="app.js"></script>
+    <script src="update-checker.js"></script>
+</body>
+</html>

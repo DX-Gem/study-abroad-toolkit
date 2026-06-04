@@ -1,7 +1,13 @@
-const CACHE_NAME = 'study-abroad-v5-20260603';
+const CACHE_NAME = 'study-abroad-v8-20260603';
+const HTML_PAGES = ['/', '/index.html', '/login.html', '/community.html', '/post.html', '/friends.html', '/notifications.html', '/currency.html', '/phrasebook.html', '/knowledge.html', '/timezone.html', '/ledger.html', '/countdown.html', '/diary.html', '/profile.html', '/cost.html', '/packing.html', '/select.html', '/onboarding.html'];
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/login.html',
+  '/community.html',
+  '/post.html',
+  '/friends.html',
+  '/notifications.html',
   '/currency.html',
   '/phrasebook.html',
   '/knowledge.html',
@@ -19,6 +25,7 @@ const STATIC_ASSETS = [
   '/update-checker.js',
   '/sw.js',
   '/manifest.json',
+  '/version.json',
   '/icon-192.png',
   '/icon-512.png',
   '/data/cities.json',
@@ -51,6 +58,13 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// 接收页面发来的 SKIP_WAITING 指令，立即激活新 SW
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -68,7 +82,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 静态资源：缓存优先
+  // HTML 页面：网络优先（保证最新），失败时降级缓存
+  const pathname = url.pathname;
+  const isHtml = HTML_PAGES.includes(pathname) || pathname.endsWith('.html') || pathname === '/' || !pathname.includes('.');
+  if (isHtml) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const cloned = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // 其他静态资源：缓存优先
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
