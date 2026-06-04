@@ -11,6 +11,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
+import android.webkit.ValueCallback;
 import android.view.WindowManager;
 import android.os.Build;
 import android.view.View;
@@ -27,6 +28,8 @@ import java.util.Locale;
 public class MainActivity extends Activity {
     private WebView webView;
     private TextToSpeech tts;
+    private ValueCallback<Uri[]> mFilePathCallback;
+    private static final int FILE_CHOOSER_REQUEST = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +170,21 @@ public class MainActivity extends Activity {
             tts.shutdown();
         }
         super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == FILE_CHOOSER_REQUEST) {
+            if (mFilePathCallback != null) {
+                Uri[] results = null;
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    results = new Uri[]{data.getData()};
+                }
+                mFilePathCallback.onReceiveValue(results);
+                mFilePathCallback = null;
+            }
+        }
     }
 
     @Override

@@ -1,8 +1,8 @@
 {
-  "versionCode": 51,
-  "versionName": "v3.9.1",
+  "versionCode": 52,
+  "versionName": "v3.9.2",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.4MB",
-  "changelog": "修复相册/日记选照片+图片自动压缩+更新检测走后端",
+  "changelog": "拍照+相册选择+CAMERA权限·完整Gradle构建",
   "forceUpdate": false
 }

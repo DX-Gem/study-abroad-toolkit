@@ -162,43 +162,112 @@
         }
 
         // ===== 相册功能 =====
+        var albumCameraStream = null;
+
         function getPhotos() {
             try { return JSON.parse(localStorage.getItem('album_photos') || '[]'); }
             catch(e) { return []; }
         }
         function savePhotos(photos) {
+            if (photos.length > 50) photos = photos.slice(0,50);
             localStorage.setItem('album_photos', JSON.stringify(photos));
         }
 
         function addPhoto() {
-            var input = document.getElementById('photoInput');
-            if (!input) {
-                input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
-                input.id = 'photoInput';
-                input.style.display = 'none';
-                input.onchange = function(e) {
-                    var file = e.target.files[0];
-                    if (!file) return;
-                    var reader = new FileReader();
-                    reader.onload = function(ev) {
-                        var photos = getPhotos();
-                        photos.unshift({
-                            id: Date.now(),
-                            data: ev.target.result,
-                            date: new Date().toISOString().slice(0,10)
+            // 弹出选择：拍照 or 选文件
+            var choice = confirm('点「确定」拍照，点「取消」从文件选择');
+            if (choice) {
+                takeAlbumPhoto();
+            } else {
+                var input = document.getElementById('photoInput');
+                if (!input) {
+                    input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.id = 'photoInput';
+                    input.style.cssText = 'margin-top:8px;display:block;width:100%;';
+                    input.onchange = function(e) {
+                        var file = e.target.files[0];
+                        if (!file) return;
+                        compressPhoto(file, function(dataUrl) {
+                            savePhotoData(dataUrl);
                         });
-                        // 限制最多50张，防爆localStorage
-                        if (photos.length > 50) photos = photos.slice(0,50);
-                        savePhotos(photos);
-                        renderAlbum();
                     };
-                    reader.readAsDataURL(file);
-                };
-                document.body.appendChild(input);
+                    document.body.appendChild(input);
+                }
+                input.value = '';
+                input.click();
             }
-            input.click();
+        }
+
+        async function takeAlbumPhoto() {
+            try {
+                albumCameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                // 创建临时拍照UI
+                var overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;';
+                overlay.innerHTML = '<video id="albumCamera" autoplay playsinline style="flex:1;object-fit:cover;"></video>'
+                    + '<button onclick="captureAlbum()" style="width:64px;height:64px;border-radius:50%;background:#fff;border:4px solid #ccc;margin:20px auto;cursor:pointer;"></button>'
+                    + '<button onclick="closeAlbumCamera()" style="position:absolute;top:16px;right:16px;color:#fff;background:none;border:none;font-size:1.5rem;cursor:pointer;">✕</button>';
+                document.body.appendChild(overlay);
+                setTimeout(function() {
+                    document.getElementById('albumCamera').srcObject = albumCameraStream;
+                }, 200);
+            } catch(err) {
+                alert('相机不可用，请尝试文件选择');
+            }
+        }
+
+        window.captureAlbum = function() {
+            var video = document.getElementById('albumCamera');
+            if (!video) return;
+            var canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            savePhotoData(dataUrl);
+            closeAlbumCamera();
+        };
+
+        window.closeAlbumCamera = function() {
+            if (albumCameraStream) {
+                albumCameraStream.getTracks().forEach(function(t) { t.stop(); });
+                albumCameraStream = null;
+            }
+            var overlay = document.querySelector('[style*=\"z-index:9999\"]');
+            if (overlay) overlay.remove();
+        };
+
+        function savePhotoData(dataUrl) {
+            var photos = getPhotos();
+            photos.unshift({
+                id: Date.now(),
+                data: dataUrl,
+                date: new Date().toISOString().slice(0,10)
+            });
+            savePhotos(photos);
+            renderAlbum();
+        }
+
+        function compressPhoto(file, callback) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    var maxW = 800, maxH = 600;
+                    var w = img.width, h = img.height;
+                    if (w > maxW) { h = h * maxW / w; w = maxW; }
+                    if (h > maxH) { w = w * maxH / h; h = maxH; }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    callback(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
         function deletePhoto(id) {

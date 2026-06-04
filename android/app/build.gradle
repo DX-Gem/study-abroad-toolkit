@@ -15,8 +15,8 @@ android {
         applicationId "com.liudianxun.toolkit"
         minSdk 21
         targetSdk 34
-        versionCode 47
-        versionName "3.8.2"
+        versionCode 52
+        versionName "v3.9.2"
     }
 
     signingConfigs {

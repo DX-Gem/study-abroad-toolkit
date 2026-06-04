@@ -206,12 +206,29 @@
             </div>
         </div>
 
-        <button class="btn-start" onclick="saveAndEnter()">🚀 开始使用</button>
+        <div class="onboard-card" style="border-left-color:#9B59B6;">
+            <h2>🔐 注册社区账号 <span style="font-size:0.6875rem;font-weight:400;color:var(--text-muted);">— 和全球留学生交流</span></h2>
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" id="userEmail" placeholder="your@email.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="userPassword" placeholder="至少6位" autocomplete="new-password">
+            </div>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:-4px;">注册后可使用朋友圈、好友等社区功能</p>
+        </div>
+
+        <button class="btn-start" id="btnStart" onclick="saveAndEnter()">🚀 开始使用</button>
+        <div id="registerMsg" style="text-align:center;font-size:0.8125rem;margin-top:-4px;min-height:20px;"></div>
         <a class="skip-link" href="select.html">跳过，直接选国家 →</a>
     </div>
 
     <script src="data/country-data.js"></script>
     <script>
+        var API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'http://localhost:8000' : 'http://100.117.204.31:8000';
+
         // 填充国家下拉框
         (function() {
             var select = document.getElementById('userCountry');
@@ -221,15 +238,52 @@
                 opt.textContent = c.flag + ' ' + c.name + ' — ' + c.currency.name;
                 select.appendChild(opt);
             });
-            // 预填默认：哈萨克斯坦
             select.value = 'kazakhstan';
         })();
 
-        function saveAndEnter() {
+        async function saveAndEnter() {
+            var btn = document.getElementById('btnStart');
+            var msgEl = document.getElementById('registerMsg');
             var name = document.getElementById('userName').value.trim();
             var country = document.getElementById('userCountry').value;
             var date = document.getElementById('userDate').value;
             var budget = document.getElementById('userBudget').value;
+            var email = document.getElementById('userEmail').value.trim();
+            var password = document.getElementById('userPassword').value;
+
+            // 如果填了邮箱，先注册社区账号
+            if (email && password) {
+                if (password.length < 6) {
+                    msgEl.textContent = '密码至少6位';
+                    msgEl.style.color = 'var(--error)';
+                    return;
+                }
+                btn.disabled = true;
+                btn.textContent = '正在注册...';
+                msgEl.textContent = '';
+                msgEl.style.color = '';
+
+                try {
+                    var res = await fetch(API_BASE + '/api/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email, password: password, name: name || email.split('@')[0] })
+                    });
+                    var data = await res.json();
+                    if (!res.ok) throw new Error(data.detail || '注册失败');
+
+                    // 自动登录
+                    localStorage.setItem('auth_token', data.token);
+                    localStorage.setItem('auth_user', JSON.stringify(data.user));
+                    msgEl.textContent = '账号注册成功！';
+                    msgEl.style.color = 'var(--success)';
+                } catch (err) {
+                    msgEl.textContent = '注册失败: ' + err.message + ' · 基本信息已保存';
+                    msgEl.style.color = '#e67e22';
+                }
+                btn.disabled = false;
+                btn.textContent = '🚀 开始使用';
+            }
 
             // 保存用户信息
             var profile = {
@@ -240,11 +294,9 @@
                 setupAt: new Date().toISOString()
             };
             localStorage.setItem('user_profile', JSON.stringify(profile));
-
-            // 同步国家选择
             localStorage.setItem('selected_country', country);
 
-            // 保存出发日期到倒计时
+            // 同步出发日期到倒计时
             if (date) {
                 var cd = JSON.parse(localStorage.getItem('countdown_data') || 'null');
                 if (!cd) {
@@ -257,7 +309,7 @@
                 localStorage.setItem('countdown_data', JSON.stringify(cd));
             }
 
-            // 保存预算到记账本
+            // 同步预算到记账本
             if (budget && parseInt(budget) > 0) {
                 var ledger = JSON.parse(localStorage.getItem('ledger_data') || '{"records":[],"settings":{"monthly_budget_cny":3000,"default_currency":"KZT"}}');
                 ledger.settings.monthly_budget_cny = parseInt(budget);

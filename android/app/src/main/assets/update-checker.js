@@ -1,51 +1,55 @@
 // ============================================================
-// 版本检查器 — 检测 Gitee 上的 version.json
-// 用于 APK 更新提示和兜底更新检测
+// 版本检查器 — 优先走后端代理(解决CORS)，兜底直连Gitee
 // ============================================================
 (function() {
-  var CURRENT_VERSION = 47;  // 与 version.json 同步
-  var VERSION_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/version.json';
-  var LOCAL_FALLBACK = 'version.json';  // 本地降级
+  var CURRENT_VERSION = 51;
+  var GITEE_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/version.json';
+  var LOCAL_FALLBACK = 'version.json';
+
+  // 确定 API 地址
+  var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  var API_BASE = isLocal ? 'http://localhost:8000' : 'http://100.117.204.31:8000';
 
   setTimeout(checkUpdate, 3000);
 
-  function checkUpdate() {
-    // PWA 场景：SW 自动更新已覆盖，这里作为 APK/兜底
-    try {
+  function fetchJSON(url, timeout) {
+    return new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', VERSION_URL, true);
-      xhr.timeout = 8000;
+      xhr.open('GET', url, true);
+      xhr.timeout = timeout || 8000;
       xhr.onload = function() {
-        if (xhr.status !== 200) return;
-        try {
-          var info = JSON.parse(xhr.responseText);
-          processVersion(info);
-        } catch(e) {}
+        if (xhr.status === 200) {
+          try { resolve(JSON.parse(xhr.responseText)); }
+          catch(e) { reject(e); }
+        } else {
+          reject(new Error('HTTP ' + xhr.status));
+        }
       };
-      xhr.onerror = function() {
-        // Gitee 不通，尝试本地
-        tryLocal();
-      };
+      xhr.onerror = function() { reject(new Error('Network error')); };
+      xhr.ontimeout = function() { reject(new Error('Timeout')); };
       xhr.send();
-    } catch(e) {
-      tryLocal();
-    }
+    });
   }
 
-  function tryLocal() {
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', LOCAL_FALLBACK, true);
-      xhr.timeout = 5000;
-      xhr.onload = function() {
-        if (xhr.status !== 200) return;
-        try {
-          var info = JSON.parse(xhr.responseText);
-          processVersion(info);
-        } catch(e) {}
-      };
-      xhr.send();
-    } catch(e) {}
+  function checkUpdate() {
+    // 1. 优先走后端代理（手机能通，无CORS问题）
+    fetchJSON(API_BASE + '/api/version', 8000)
+      .then(function(info) { processVersion(info); })
+      .catch(function() {
+        // 2. 后端不通，尝试直连Gitee
+        return fetchJSON(GITEE_URL, 8000);
+      })
+      .then(function(info) {
+        if (info) processVersion(info);
+      })
+      .catch(function() {
+        // 3. Gitee也不通，用本地文件
+        return fetchJSON(LOCAL_FALLBACK, 5000);
+      })
+      .then(function(info) {
+        if (info) processVersion(info);
+      })
+      .catch(function() {});
   }
 
   function processVersion(info) {
