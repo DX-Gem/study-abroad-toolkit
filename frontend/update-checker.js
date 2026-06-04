@@ -3,7 +3,7 @@
 // 用于 APK 更新提示和兜底更新检测
 // ============================================================
 (function() {
-  var CURRENT_VERSION = 49;  // 与 version.json 同步
+  var CURRENT_VERSION = 50;  // 与 version.json 同步
   var VERSION_URL = 'https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/version.json';
   var LOCAL_FALLBACK = 'version.json';  // 本地降级
 

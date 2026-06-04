@@ -1,8 +1,8 @@
 {
-  "versionCode": 49,
-  "versionName": "v3.8.6",
+  "versionCode": 50,
+  "versionName": "v3.9",
   "apkUrl": "https://gitee.com/dianxun-liu/study-abroad-toolkit/raw/main/frontend/toolkit.apk",
   "apkSize": "2.4MB",
-  "changelog": "引导页融合社区注册 · 版本号同步修复",
+  "changelog": "日记图片压缩·社区API修复·引导页注册融合",
   "forceUpdate": false
 }
