@@ -167,6 +167,7 @@
             catch(e) { return []; }
         }
         function savePhotos(photos) {
+            if (photos.length > 50) photos = photos.slice(0,50);
             localStorage.setItem('album_photos', JSON.stringify(photos));
         }
 
@@ -177,28 +178,44 @@
                 input.type = 'file';
                 input.accept = 'image/*';
                 input.id = 'photoInput';
-                input.style.display = 'none';
+                input.style.cssText = 'width:0;height:0;opacity:0;position:absolute;';
                 input.onchange = function(e) {
                     var file = e.target.files[0];
                     if (!file) return;
-                    var reader = new FileReader();
-                    reader.onload = function(ev) {
+                    compressPhoto(file, function(dataUrl) {
                         var photos = getPhotos();
                         photos.unshift({
                             id: Date.now(),
-                            data: ev.target.result,
+                            data: dataUrl,
                             date: new Date().toISOString().slice(0,10)
                         });
-                        // 限制最多50张，防爆localStorage
-                        if (photos.length > 50) photos = photos.slice(0,50);
                         savePhotos(photos);
                         renderAlbum();
-                    };
-                    reader.readAsDataURL(file);
+                    });
                 };
                 document.body.appendChild(input);
             }
+            input.value = '';
             input.click();
+        }
+
+        function compressPhoto(file, callback) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    var maxW = 800, maxH = 600;
+                    var w = img.width, h = img.height;
+                    if (w > maxW) { h = h * maxW / w; w = maxW; }
+                    if (h > maxH) { w = w * maxH / h; h = maxH; }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    callback(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
         function deletePhoto(id) {

@@ -78,7 +78,29 @@ public class MainActivity extends Activity {
             }
         });
 
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            // 支持文件选择器（相册/相机）
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
+                                             FileChooserParams fileChooserParams) {
+                if (mFilePathCallback != null) {
+                    mFilePathCallback.onReceiveValue(null);
+                }
+                mFilePathCallback = filePathCallback;
+
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("image/*");
+
+                try {
+                    startActivityForResult(Intent.createChooser(intent, "选择图片"), FILE_CHOOSER_REQUEST);
+                } catch (Exception e) {
+                    mFilePathCallback = null;
+                    return false;
+                }
+                return true;
+            }
+        });
 
         // 原生 TTS 引擎（Web Speech API 在 WebView 中不稳定，提供原生兜底）
         tts = new TextToSpeech(this, null);
